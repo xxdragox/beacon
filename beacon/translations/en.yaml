@@ -1,0 +1,31 @@
+configuration:
+  family_name:
+    name: Family name
+  ha_token:
+    name: Home Assistant token
+    description: Optional long-lived access token. Leave empty to use the add-on's built-in access.
+  save_config_in_browser:
+    name: Save configuration in browser
+  theme:
+    name: Theme
+  auto_dark_mode:
+    name: Automatic dark mode
+  weather_entity:
+    name: Weather entity
+  photo_directory:
+    name: Photo directory
+  photo_interval:
+    name: Photo interval (seconds)
+  screen_saver_timeout:
+    name: Screen saver timeout (minutes)
+  icloud_username:
+    name: iCloud Apple ID
+    description: >-
+      Lets Beacon edit and delete events on iCloud calendars, which Home
+      Assistant's CalDAV integration can't. Use the Apple ID that owns the
+      calendars.
+  icloud_app_password:
+    name: iCloud app-specific password
+    description: >-
+      Create one at account.apple.com under Sign-In and Security, App-Specific
+      Passwords. Not your Apple ID password.

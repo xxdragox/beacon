@@ -1,5 +1,5 @@
 name: Beacon
-version: "1.38.0-mc7.2"
+version: "1.38.0-mc7.3"
 slug: beacon
 description: "Family command center for wall-mounted displays"
 url: "https://github.com/asachs01/beacon"
@@ -25,6 +25,8 @@ options:
   photo_directory: "/media/beacon/photos"
   photo_interval: 30
   screen_saver_timeout: 5
+  icloud_username: ""
+  icloud_app_password: ""
 schema:
   family_name: str
   save_config_in_browser: bool
@@ -34,3 +36,5 @@ schema:
   photo_directory: str
   photo_interval: int
   screen_saver_timeout: int
+  icloud_username: str?
+  icloud_app_password: password?

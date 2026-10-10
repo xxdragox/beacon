@@ -31,6 +31,7 @@
 > - Family member emoji avatars are removed throughout the UI (chore cards show a member-colored dot instead).
 > - Customizable dashboard fills gaps, reflows on narrow and portrait screens, and hides regions with nothing to show.
 > - Meal plans come from [Mealie](https://mealie.io) via Home Assistant's Mealie integration, with a new "Week Menu" card.
+> - Events on iCloud calendars can be edited and deleted (HA's CalDAV integration only creates them): set `icloud_username` and an Apple app-specific password in the add-on configuration.
 > Add this fork to Home Assistant with the repository URL `https://github.com/xxdragox/beacon`.
 
 ---

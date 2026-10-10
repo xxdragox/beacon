@@ -18,8 +18,10 @@ WORKDIR /app
 
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /app/node_modules/ws /app/node_modules/ws
+COPY --from=builder /app/node_modules/ical.js /app/node_modules/ical.js
 COPY run.sh /etc/services.d/beacon/run
 COPY server.js /app/server.js
+COPY icloud-caldav.cjs /app/icloud-caldav.cjs
 COPY custom_sentences/ /app/custom_sentences/
 COPY custom_intents/ /app/custom_intents/
 RUN chmod a+x /etc/services.d/beacon/run

@@ -1,3 +1,11 @@
+# [1.38.0-mc7.3](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-10)
+
+Fork changes (xxdragox/beacon), editing iCloud calendar events:
+
+* edit and delete events on iCloud calendars. Home Assistant's CalDAV integration can only create events, so when HA reports an update/delete as unsupported, the add-on server makes the change on iCloud directly over CalDAV (new `icloud_username` / `icloud_app_password` options; the password stays server-side). HA calendar entities are matched to iCloud calendars by name.
+* editing or deleting one occurrence of a recurring event changes only that occurrence (an override or an EXDATE), like Apple Calendar's "this event only"; the series is never rewritten from an occurrence
+* writes use the event's ETag, so an edit made on another device in the meantime is reported instead of overwritten
+
 # [1.38.0-mc7.2](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-10)
 
 Fork changes (xxdragox/beacon), dashboard layout and meal plans:

@@ -24,6 +24,12 @@ export interface CalendarEvent {
    * isn't a real event uid the service will recognize.
    */
   hasStableId?: boolean;
+  /**
+   * For one occurrence of a recurring event: HA's `recurrence_id` (the
+   * occurrence's original start). Sent with update/delete so only that
+   * occurrence changes, not the whole series.
+   */
+  recurrenceId?: string;
 }
 
 export interface CalendarInfo {

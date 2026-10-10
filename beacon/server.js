@@ -12,6 +12,7 @@ const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 const WebSocket = require('ws');
+const icloud = require('./icloud-caldav.cjs');
 
 const PORT = 3000;
 const DIST = process.env.BEACON_DIST || '/app/dist';
@@ -233,12 +234,54 @@ function haWsCommand(command, timeoutMs = 10000) {
 }
 
 /**
+ * iCloud credentials from the add-on options (/data/options.json). Read per
+ * request so a fresh client is built only when they change; the password
+ * never leaves the server.
+ */
+let icloudClient = null;
+let icloudClientKey = '';
+function getICloudClient() {
+  let options = {};
+  try {
+    options = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'options.json'), 'utf8'));
+  } catch { /* no options file outside the add-on */ }
+  const username = (options.icloud_username || '').trim();
+  const password = (options.icloud_app_password || '').trim();
+  if (!username || !password) return null;
+  const key = `${username}\n${password}`;
+  if (key !== icloudClientKey) {
+    icloudClient = icloud.createClient({ username, password });
+    icloudClientKey = key;
+  }
+  return icloudClient;
+}
+
+/**
+ * Update/delete an event on its iCloud calendar directly, for calendars whose
+ * HA integration (CalDAV) can't. The HA entity's name is matched to the
+ * iCloud calendar's name; naive times are in HA's configured time zone.
+ */
+async function icloudCalendarEvent(client, { op, entity_id, uid, recurrence_id, event }) {
+  const [state, config] = await Promise.all([
+    haRequest('GET', `/api/states/${encodeURIComponent(entity_id)}`),
+    haRequest('GET', '/api/config'),
+  ]);
+  const calendarName = state.data?.attributes?.friendly_name;
+  if (!calendarName) throw new icloud.ICloudError(`Unknown calendar ${entity_id}`, 'not_icloud_calendar');
+  const defaultTz = config.data?.time_zone || 'UTC';
+  const args = { calendarName, uid, recurrenceId: recurrence_id || undefined, defaultTz };
+  if (op === 'update') await client.updateEvent({ ...args, payload: event });
+  else await client.deleteEvent(args);
+}
+
+/**
  * POST /beacon-action/calendar-event
- * Body: { op: 'create'|'update'|'delete', entity_id, uid?, event? }
+ * Body: { op: 'create'|'update'|'delete', entity_id, uid?, recurrence_id?, event? }
  * Bridges calendar event create/update/delete to HA's WS-only commands
  * (calendar/event/create, calendar/event/update, calendar/event/delete)
  * since those are no longer exposed as REST-callable services in current
- * HA core.
+ * HA core. When HA can't update/delete (e.g. its CalDAV integration) and
+ * iCloud credentials are configured, the change goes to iCloud directly.
  */
 function handleCalendarEventAction(req, res) {
   if (req.method !== 'POST') {
@@ -249,7 +292,7 @@ function handleCalendarEventAction(req, res) {
 
   collectBody(req).then(async (bodyBuf) => {
     try {
-      const { op, entity_id, uid, event } = JSON.parse((bodyBuf || '{}').toString('utf8'));
+      const { op, entity_id, uid, recurrence_id, event } = JSON.parse((bodyBuf || '{}').toString('utf8'));
       if (!op || !entity_id) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Missing op or entity_id' }));
@@ -277,7 +320,24 @@ function handleCalendarEventAction(req, res) {
         ? { type: 'calendar/event/update', entity_id, uid, event }
         : { type: 'calendar/event/delete', entity_id, uid };
 
-      const result = await haWsCommand(command);
+      let result;
+      try {
+        result = await haWsCommand(command);
+      } catch (err) {
+        const client = op !== 'create' && err.code === 'not_supported' ? getICloudClient() : null;
+        if (!client) throw err;
+        try {
+          await icloudCalendarEvent(client, { op, entity_id, uid, recurrence_id, event });
+        } catch (icloudErr) {
+          // Not an iCloud calendar after all: report HA's original answer.
+          if (icloudErr.code === 'not_icloud_calendar') throw err;
+          console.error(`iCloud ${op} failed for ${entity_id}: ${icloudErr.message}`);
+          res.writeHead(icloudErr.code === 'icloud_conflict' ? 409 : 502, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: icloudErr.message, code: icloudErr.code || null }));
+          return;
+        }
+        result = { via: 'icloud' };
+      }
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, result }));
     } catch (err) {

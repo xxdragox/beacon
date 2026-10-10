@@ -120,6 +120,7 @@ export function useCalendarEvents(
               calendarName: cal.name,
               color: cal.color,
               hasStableId: !!realUid,
+              recurrenceId: ev.recurrence_id || undefined,
             });
           }
         } catch (err) {
@@ -208,7 +209,8 @@ export function useCalendarEvents(
       start_date?: string;
       end_date?: string;
       description?: string;
-    }
+    },
+    recurrenceId?: string,
   ) => {
     try {
       const client = getClient?.();
@@ -219,6 +221,7 @@ export function useCalendarEvents(
           op: 'update',
           entity_id: calendarId,
           uid,
+          recurrence_id: recurrenceId,
           event: toWsEventPayload(event),
         });
       }
@@ -232,7 +235,7 @@ export function useCalendarEvents(
    * Delete an event. Same WS-only migration and not-supported handling as
    * updateEvent above — see that doc comment for the full explanation.
    */
-  const deleteEvent = useCallback(async (calendarId: string, uid: string) => {
+  const deleteEvent = useCallback(async (calendarId: string, uid: string, recurrenceId?: string) => {
     try {
       const client = getClient?.();
       if (client?.isConnected) {
@@ -242,6 +245,7 @@ export function useCalendarEvents(
           op: 'delete',
           entity_id: calendarId,
           uid,
+          recurrence_id: recurrenceId,
         });
       }
     } catch (err) {

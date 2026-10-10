@@ -106,19 +106,19 @@ export function App() {
     }
   }, [localCal, createHaEvent]);
 
-  const updateEvent = useCallback(async (calendarId: string, uid: string, eventData: Parameters<typeof updateHaEvent>[2]) => {
+  const updateEvent = useCallback(async (calendarId: string, uid: string, eventData: Parameters<typeof updateHaEvent>[2], recurrenceId?: string) => {
     if (calendarId === localCal.calendar.id) {
       localCal.updateEvent(uid, eventData);
     } else {
-      await updateHaEvent(calendarId, uid, eventData);
+      await updateHaEvent(calendarId, uid, eventData, recurrenceId);
     }
   }, [localCal, updateHaEvent]);
 
-  const deleteEvent = useCallback(async (calendarId: string, uid: string) => {
+  const deleteEvent = useCallback(async (calendarId: string, uid: string, recurrenceId?: string) => {
     if (calendarId === localCal.calendar.id) {
       localCal.deleteEvent(uid);
     } else {
-      await deleteHaEvent(calendarId, uid);
+      await deleteHaEvent(calendarId, uid, recurrenceId);
     }
   }, [localCal, deleteHaEvent]);
 
@@ -331,11 +331,11 @@ export function App() {
           throw new Error("This event can't be edited — it has no stable ID from its calendar provider.");
         }
         if (calendarId !== selectedEvent.calendarId) {
-          await deleteEvent(selectedEvent.calendarId, selectedEvent.id);
+          await deleteEvent(selectedEvent.calendarId, selectedEvent.id, selectedEvent.recurrenceId);
           await createEvent(calendarId, eventData);
         } else {
           try {
-            await updateEvent(calendarId, selectedEvent.id, eventData);
+            await updateEvent(calendarId, selectedEvent.id, eventData, selectedEvent.recurrenceId);
           } catch (err) {
             // Many calendar providers (Google Calendar via HA, several
             // CalDAV backends, etc.) don't support in-place event updates
@@ -343,7 +343,7 @@ export function App() {
             // works — the event gets a new id, but that's invisible to
             // the user since we refetch right after.
             if (err instanceof CalendarNotSupportedError) {
-              await deleteEvent(calendarId, selectedEvent.id);
+              await deleteEvent(calendarId, selectedEvent.id, selectedEvent.recurrenceId);
               await createEvent(calendarId, eventData);
             } else {
               throw err;
@@ -370,7 +370,8 @@ export function App() {
       if (selectedEvent && selectedEvent.id === eventId && selectedEvent.hasStableId === false) {
         throw new Error("This event can't be deleted — it has no stable ID from its calendar provider.");
       }
-      await deleteEvent(calendarId, eventId);
+      const recurrenceId = selectedEvent?.id === eventId ? selectedEvent.recurrenceId : undefined;
+      await deleteEvent(calendarId, eventId, recurrenceId);
 
       await refetchEventsForWeek(visibleWeekStart);
 
@@ -403,12 +404,12 @@ export function App() {
           })();
 
       try {
-        await updateEvent(event.calendarId, event.id, patch);
+        await updateEvent(event.calendarId, event.id, patch, event.recurrenceId);
       } catch (err) {
         // Same fallback as handleSaveEvent: calendars without update
         // support need delete + recreate to move an event via drag.
         if (err instanceof CalendarNotSupportedError) {
-          await deleteEvent(event.calendarId, event.id);
+          await deleteEvent(event.calendarId, event.id, event.recurrenceId);
           await createEvent(event.calendarId, { ...patch, summary: event.title, description: event.description });
         } else {
           throw err;
