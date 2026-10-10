@@ -11,6 +11,11 @@ interface DashboardGridStackProps {
   cards: DashboardCard[];
   context: DashboardCardContext;
   editMode: boolean;
+  /** Stretch the 16 logical rows to fill the region's height. Only valid when
+   * the region has a definite height; in scrolling layouts (compact, small
+   * screens) the grid's own height depends on its row height, so filling
+   * would feed back on itself and grow/shrink without end. */
+  fillHeight?: boolean;
   onChange: (cards: DashboardCard[]) => void;
 }
 
@@ -23,6 +28,18 @@ const MARGIN = 8;
  * "fill the available height" regardless of viewport size (see the
  * ResizeObserver below, which keeps cellHeight in sync with this). */
 const TOTAL_ROWS = 16;
+/** Row height (px) for regions that size to their content instead of filling. */
+const FIXED_CELL_HEIGHT = 48;
+
+/** Column count to show for a grid of `width` px. Narrow grids get fewer
+ * columns so cards reflow instead of being squeezed; the saved layout is
+ * always in full-width (MAIN_GRID_COLUMNS) units. */
+function columnsForWidth(region: DashboardRegion, width: number): number {
+  if (region === 'sidebar') return SIDEBAR_GRID_COLUMNS;
+  if (width < 600) return 1;
+  if (width < 1000) return 12;
+  return MAIN_GRID_COLUMNS;
+}
 
 /** cellHeight (px) so that `rows` rows plus their margins fill `height`. */
 function cellHeightFor(height: number, rows: number): number {
@@ -49,10 +66,14 @@ function defaultSpanFor(region: DashboardRegion, size: DashboardCard['size']): {
  * *enhances* those already-rendered elements via `makeWidget()`, and we
  * track which ids have been enhanced in `madeWidgetIds`.
  */
-export function DashboardGridStack({ region, cards, context, editMode, onChange }: DashboardGridStackProps) {
+export function DashboardGridStack({ region, cards, context, editMode, fillHeight = true, onChange }: DashboardGridStackProps) {
   const columnCount = region === 'sidebar' ? SIDEBAR_GRID_COLUMNS : MAIN_GRID_COLUMNS;
   const rowCount = region === 'topbar' ? 2 : TOTAL_ROWS;
-  const growsWithContent = region === 'topbar';
+  const growsWithContent = region === 'topbar' || !fillHeight;
+  const growsWithContentRef = useRef(growsWithContent);
+  growsWithContentRef.current = growsWithContent;
+  const editModeRef = useRef(editMode);
+  editModeRef.current = editMode;
   const containerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<GridStack | null>(null);
   const itemElsRef = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -89,7 +110,19 @@ export function DashboardGridStack({ region, cards, context, editMode, onChange 
     onChange(cardsRef.current.filter((c) => c.id !== id));
   };
 
+  /** Switch to the column count that fits `width`. Edit mode always shows
+   * the full-width grid so what you arrange is what gets saved. */
+  const applyColumns = (width: number) => {
+    const grid = gridRef.current;
+    if (!grid || !width) return;
+    const target = editModeRef.current ? columnCount : columnsForWidth(region, width);
+    if (grid.getColumn() !== target) grid.column(target, target === 1 ? 'list' : 'moveScale');
+  };
+
   const syncPositions = (nodes: GridStackNode[]) => {
+    // Reflowed positions at a reduced column count are display-only — never
+    // persist them over the full-width layout.
+    if (gridRef.current && gridRef.current.getColumn() !== columnCount) return;
     const next = cardsRef.current.map((c) => {
       const node = nodes.find((n) => n.id === c.id);
       if (!node) return c;
@@ -107,12 +140,13 @@ export function DashboardGridStack({ region, cards, context, editMode, onChange 
       {
         column: columnCount,
         cellHeight: growsWithContent
-          ? 48
+          ? FIXED_CELL_HEIGHT
           : containerRef.current.clientHeight
             ? cellHeightFor(containerRef.current.clientHeight, rowCount)
             : 40,
         margin: MARGIN,
-        float: true,
+        // Let cards slide up into empty space instead of leaving gaps.
+        float: false,
         staticGrid: !editMode,
         draggable: { handle: '.dash-card-edit-drag' },
         // We register every `.grid-stack-item` ourselves via makeWidget()
@@ -128,15 +162,16 @@ export function DashboardGridStack({ region, cards, context, editMode, onChange 
 
     grid.on('change', (_event, nodes) => syncPositions(nodes as GridStackNode[]));
 
-    const resizeObserver = growsWithContent ? null : new ResizeObserver((entries) => {
-      const height = entries[0]?.contentRect.height;
-      if (!height) return;
-      grid.cellHeight(cellHeightFor(height, rowCount));
+    const resizeObserver = new ResizeObserver((entries) => {
+      const rect = entries[0]?.contentRect;
+      if (!rect) return;
+      applyColumns(rect.width);
+      if (!growsWithContentRef.current && rect.height) grid.cellHeight(cellHeightFor(rect.height, rowCount));
     });
-    if (resizeObserver) resizeObserver.observe(containerRef.current);
+    resizeObserver.observe(containerRef.current);
 
     return () => {
-      resizeObserver?.disconnect();
+      resizeObserver.disconnect();
       grid.destroy(false);
       gridRef.current = null;
       madeWidgetIds.current.clear();
@@ -145,10 +180,20 @@ export function DashboardGridStack({ region, cards, context, editMode, onChange 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Lock/unlock dragging & resizing.
+  // Lock/unlock dragging & resizing, and go full-width while editing.
   useEffect(() => {
     gridRef.current?.setStatic(!editMode);
+    applyColumns(containerRef.current?.clientWidth ?? 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editMode]);
+
+  // Switch between fill-the-region and fixed row heights (layout/screen changes).
+  useEffect(() => {
+    const grid = gridRef.current;
+    const el = containerRef.current;
+    if (!grid || !el) return;
+    grid.cellHeight(growsWithContent || !el.clientHeight ? FIXED_CELL_HEIGHT : cellHeightFor(el.clientHeight, rowCount));
+  }, [growsWithContent, rowCount]);
 
   // Turn any newly-rendered `.grid-stack-item` element into a GridStack
   // widget. Runs after every render (cheap — guarded by madeWidgetIds), since
@@ -167,8 +212,12 @@ export function DashboardGridStack({ region, cards, context, editMode, onChange 
         if (node.el) grid.removeWidget(node.el, false, false);
         madeWidgetIds.current.delete(node.id!);
       });
-    cards.forEach((c) => {
-      if (madeWidgetIds.current.has(c.id)) return;
+    // Saved positions are in full-width units, so add new widgets at the full
+    // column count and reflow back down afterwards.
+    const pending = cards.filter((c) => !madeWidgetIds.current.has(c.id) && itemElsRef.current.has(c.id));
+    const reducedColumns = grid.getColumn();
+    if (pending.length > 0 && reducedColumns !== columnCount) grid.column(columnCount);
+    pending.forEach((c) => {
       const el = itemElsRef.current.get(c.id);
       if (!el) return;
       const sizeHint = pendingSizeRef.current.get(c.id);
@@ -187,6 +236,7 @@ export function DashboardGridStack({ region, cards, context, editMode, onChange 
       // already occupy all the visible space — scroll new ones into view.
       if (sizeHint) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
+    if (pending.length > 0 && reducedColumns !== columnCount) applyColumns(containerRef.current?.clientWidth ?? 0);
   });
 
   const handleAdd = (type: string) => {
@@ -212,7 +262,7 @@ export function DashboardGridStack({ region, cards, context, editMode, onChange 
   const configuringCard = cards.find((c) => c.id === configuringId) ?? null;
 
   return (
-    <div className={`dash-gridstack-wrapper dash-gridstack-wrapper--${region}`}>
+    <div className={`dash-gridstack-wrapper dash-gridstack-wrapper--${region}${growsWithContent ? ' dash-gridstack-wrapper--grow' : ''}`}>
       <div className="grid-stack" ref={containerRef}>
         {cards.map((c) => {
           const definition = cardRegistry[c.type];

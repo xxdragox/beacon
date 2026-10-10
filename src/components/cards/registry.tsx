@@ -4,6 +4,7 @@ import { FamilyCalendarCard } from './FamilyCalendarCard';
 import { AgendaTodayCard } from './AgendaTodayCard';
 import { AgendaWeekCard } from './AgendaWeekCard';
 import { MenuCard } from './MenuCard';
+import { WeekMenuCard } from './WeekMenuCard';
 import { TasksCard } from './TasksCard';
 import { ShoppingCard } from './ShoppingCard';
 import { HaEntityCard } from './HaEntityCard';
@@ -63,6 +64,18 @@ export const cardRegistry: Record<string, CardDefinition> = {
     defaultConfig: {},
     defaultSize: 'sm',
     allowedRegions: ['sidebar'],
+  },
+  'week-menu': {
+    type: 'week-menu',
+    displayName: 'Week Menu',
+    icon: '🥘',
+    component: WeekMenuCard,
+    defaultConfig: { dinner_only: false },
+    defaultSize: 'md',
+    configFields: [
+      { type: 'toggle', key: 'dinner_only', label: 'Dinner only', description: 'Hide breakfast, lunch, and other meals' },
+    ],
+    allowedRegions: ['main', 'sidebar'],
   },
   tasks: {
     type: 'tasks',

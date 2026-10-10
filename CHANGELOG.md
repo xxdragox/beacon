@@ -1,3 +1,19 @@
+# [1.38.0-mc7.2](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-10)
+
+Fork changes (xxdragox/beacon), dashboard layout and meal plans:
+
+* cards slide up to fill empty space instead of staying where they were dropped (GridStack `float: false`)
+* grids switch to 12 columns below 1000px wide and 1 column below 600px instead of squeezing 24 columns; the saved layout is never overwritten by the narrower reflow, and edit mode always shows the full-width grid
+* fix the compact layout (and screens under 768px) growing or shrinking card rows without end: rows there are now a fixed 48px instead of stretching to fill a region that has no fixed height
+* fix blank bands between regions in the compact layout
+* the main area and sidebar collapse when none of their cards show anything (e.g. a Menu card with no meal plan today), except in edit mode
+* portrait screens wider than 768px stack the sidebar under the main area; the sidebar width and page spacing scale with the screen
+* fix content-sized regions (compact layout, small screens) collapsing or overlapping: they keep their full height and the page scrolls
+* meal plans from Mealie: Beacon reads HA's Mealie meal calendars (`calendar.mealie_*`) for the Menu cards and keeps them out of the family calendar
+* new "Week Menu" dashboard card: today plus the next six days of meals, with an optional "Dinner only" setting
+* Side, Dessert and Drink meal types (Mealie's), with icons
+* fix the Menu card using the UTC date, which showed tomorrow's meals in the evening
+
 # [1.38.0-mc7.1](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-10)
 
 Fork changes (xxdragox/beacon):

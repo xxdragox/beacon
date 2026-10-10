@@ -5,14 +5,15 @@
 /* --- Main grid: topbar / main+sidebar (default layout) --- */
 .dashboard {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  /* Spacing and sidebar width scale with the screen instead of fixed px. */
+  grid-template-columns: 1fr clamp(260px, 22vw, 380px);
   grid-template-rows: auto 1fr;
   grid-template-areas:
     "topbar topbar"
     "main   sidebar";
   height: 100%;
-  padding: 24px 32px;
-  gap: 24px;
+  padding: clamp(12px, 1.25vw, 24px) clamp(12px, 1.75vw, 32px);
+  gap: clamp(12px, 1.25vw, 24px);
   overflow: hidden;
 }
 
@@ -81,9 +82,12 @@
     "main"
     "sidebar";
   height: auto;
+  /* Rows hug their content; without this, spare height is spread between
+     the regions as blank bands. */
+  align-content: start;
   overflow-y: auto;
-  padding: 20px;
-  gap: 20px;
+  padding: clamp(12px, 1.25vw, 20px);
+  gap: clamp(12px, 1.25vw, 20px);
   padding-bottom: 80px;
 }
 
@@ -282,7 +286,7 @@
   overflow-y: auto;
   min-height: 0;
   border-left: 1px solid var(--border-subtle);
-  padding-left: 24px;
+  padding-left: clamp(12px, 1.25vw, 24px);
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
@@ -338,6 +342,75 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ─── Week Menu card ─── */
+.week-menu-days {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.week-menu-day {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.week-menu-day--today {
+  box-shadow: inset 3px 0 0 var(--accent), var(--shadow-sm);
+}
+
+.week-menu-day-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.week-menu-day-date {
+  font-weight: 500;
+  color: var(--text-light);
+}
+
+.week-menu-meals {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.week-menu-meal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.week-menu-meal .dash-menu-icon {
+  font-size: 15px;
+  margin-top: 0;
+}
+
+.week-menu-meal .dash-menu-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.week-menu-empty {
+  font-size: 13px;
+  color: var(--text-light);
+  font-style: italic;
 }
 
 .dash-sidebar-heading {
@@ -664,6 +737,7 @@
     gap: 16px;
     padding: 16px;
     height: auto;
+    align-content: start;
     overflow-y: auto;
     padding-bottom: 80px;
   }
@@ -1052,8 +1126,9 @@
   position: relative;
 }
 
-/* The topbar grows as its GridStack canvas adds rows; the sidebar consumes
-   its full available height. */
+/* The sidebar consumes its full available height; grids that size to their
+   content (topbar, and every region in scrolling layouts) grow as their
+   GridStack canvas adds rows instead of flex-shrinking to nothing. */
 .dash-gridstack-wrapper--topbar {
   flex: 0 0 auto;
   min-height: 104px;
@@ -1063,7 +1138,12 @@
   height: 100%;
 }
 
-.dash-gridstack-wrapper--topbar .grid-stack {
+.dash-gridstack-wrapper--grow {
+  flex: 0 0 auto;
+  height: auto;
+}
+
+.dash-gridstack-wrapper--grow .grid-stack {
   flex: 0 0 auto;
   overflow-y: visible;
 }
@@ -1162,3 +1242,78 @@
   cursor: pointer;
 }
 
+/* ─── Portrait screens wide enough to skip the phone layout ───
+   Stack the sidebar under the main area instead of squeezing both side by
+   side. Rows keep definite heights, so grids can still fill them. */
+@media (orientation: portrait) and (min-width: 769px) {
+  .dashboard--default {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-areas:
+      "topbar"
+      "main"
+      "sidebar";
+  }
+
+  .dashboard--default .dash-sidebar {
+    border-left: none;
+    border-top: 1px solid var(--border-subtle);
+    padding-left: 0;
+    padding-top: 16px;
+  }
+}
+
+/* ─── Empty regions (outside edit mode) ───
+   Collapse the main area or sidebar when none of its cards render anything
+   (no cards, or e.g. a Menu card with no meal plan today) so it doesn't hold
+   blank space. Edit mode always shows every region so cards can be added.
+   Classic nests its sidebar differently and is left alone. Kept last so it
+   wins over the layout presets and breakpoints above. */
+.dashboard--advanced:not(.dashboard--classic):not(.dashboard--editing) .dash-main:not(:has(.dash-gridstack-item-inner > *)),
+.dashboard--advanced:not(.dashboard--classic):not(.dashboard--editing) .dash-sidebar:not(:has(.dash-gridstack-item-inner > *)) {
+  display: none;
+}
+
+.dashboard--advanced:not(.dashboard--classic):not(.dashboard--editing):not(:has(.dash-main .dash-gridstack-item-inner > *)) {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "topbar"
+    "sidebar";
+}
+
+.dashboard--advanced:not(.dashboard--classic):not(.dashboard--editing):not(:has(.dash-main .dash-gridstack-item-inner > *)) .dash-sidebar {
+  border: none;
+  padding: 0;
+}
+
+.dashboard--advanced:not(.dashboard--classic):not(.dashboard--editing):not(:has(.dash-sidebar .dash-gridstack-item-inner > *)) {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "topbar"
+    "main";
+}
+
+.dashboard--advanced:not(.dashboard--classic):not(.dashboard--editing):not(:has(.dash-main .dash-gridstack-item-inner > *)):not(:has(.dash-sidebar .dash-gridstack-item-inner > *)) {
+  grid-template-rows: auto;
+  grid-template-areas: "topbar";
+}
+
+/* ─── Scrolling layouts (compact, and everything under 768px) ───
+   The page scrolls here, so regions must keep their full content height
+   rather than shrinking (min-height: 0) to fit the viewport, which clipped
+   the sidebar and let the main area overflow onto it. */
+.dashboard--compact .dash-main,
+.dashboard--compact .dash-sidebar {
+  min-height: auto;
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .dashboard .dash-main,
+  .dashboard .dash-sidebar {
+    min-height: auto;
+    overflow: visible;
+  }
+}

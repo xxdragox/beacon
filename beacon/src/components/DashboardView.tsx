@@ -5,6 +5,7 @@ import { Chore, FamilyMember } from '../types/family';
 import { useFamilyEvents } from '../hooks/useFamilyEvents';
 import { useMealPlans } from '../hooks/useMealPlans';
 import { useDashboardLayout } from '../hooks/useDashboardLayout';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { cardRegistry } from './cards/registry';
 import { DashboardRegionEditor } from './cards/DashboardRegionEditor';
 import { DashboardGridStack } from './cards/DashboardGridStack';
@@ -89,8 +90,15 @@ export function DashboardView({
   }, []);
 
   const { byMember, other } = useFamilyEvents(events, members, selectedDate);
-  const { todaysMenu } = useMealPlans();
+  const { todaysMenu, weekMenu } = useMealPlans();
   const { layout: regions, updateLayout, views, activeViewId, setActiveViewId, addView, renameView, removeView } = useDashboardLayout(layout);
+
+  // Matches the stacked, page-scrolling layout in dashboard.css. Regions there
+  // have no fixed height, so their grids can't stretch rows to fill it.
+  const isSmallScreen = useMediaQuery('(max-width: 768px)');
+  const fillHeight = layout !== 'compact' && !isSmallScreen;
+  // dashboard.css collapses regions with nothing to show, except while editing.
+  const editingClass = editMode ? ' dashboard--editing' : '';
 
   const updateRegion = (region: keyof DashboardRegionLayout, cards: DashboardCard[]) => {
     updateLayout({ ...regions, [region]: cards });
@@ -136,6 +144,7 @@ export function DashboardView({
     todayEvents,
     weekEvents,
     todaysMenu,
+    weekMenu,
     todoItems,
     onToggleTodo,
     taskmateUsers,
@@ -217,6 +226,7 @@ export function DashboardView({
               cards={regions.sidebar}
               context={context}
               editMode={editMode}
+              fillHeight={fillHeight}
               onChange={(c) => updateRegion('sidebar', c)}
             />
           </aside>
@@ -226,7 +236,7 @@ export function DashboardView({
   }
 
   return (
-    <div className={`dashboard dashboard--${layout} dashboard--advanced`}>
+    <div className={`dashboard dashboard--${layout} dashboard--advanced${editingClass}`}>
       {/* ─── TOP BAR: Time + Date + Weather ─── */}
       <button type="button" className="dash-edit-toggle" onClick={() => setEditMode((v) => !v)}>
         {editMode ? t('common.done') : t('dashboard.editDashboard')}
@@ -259,6 +269,7 @@ export function DashboardView({
           cards={regions.main}
           context={context}
           editMode={editMode}
+          fillHeight={fillHeight}
           onChange={(c) => updateRegion('main', c)}
         />
       </main>
@@ -270,6 +281,7 @@ export function DashboardView({
           cards={regions.sidebar}
           context={context}
           editMode={editMode}
+          fillHeight={fillHeight}
           onChange={(c) => updateRegion('sidebar', c)}
         />
       </aside>

@@ -75,6 +75,8 @@ export interface DashboardCardContext {
   todayEvents: CalendarEvent[];
   weekEvents: { day: Date; events: CalendarEvent[] }[];
   todaysMenu: DayMenu;
+  /** Today plus the next six days. */
+  weekMenu: DayMenu[];
   todoItems: TodoItem[];
   onToggleTodo?: (uid: string, currentStatus: string, listId?: string) => void;
   taskmateUsers: TaskmateUser[];

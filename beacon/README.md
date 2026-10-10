@@ -27,7 +27,10 @@
 </p>
 
 > **Fork note (xxdragox/beacon):** this is a personal fork of [asachs01/beacon](https://github.com/asachs01/beacon).
-> Changes from upstream: family member emoji avatars are removed throughout the UI (chore cards show a member-colored dot instead).
+> Changes from upstream:
+> - Family member emoji avatars are removed throughout the UI (chore cards show a member-colored dot instead).
+> - Customizable dashboard fills gaps, reflows on narrow and portrait screens, and hides regions with nothing to show.
+> - Meal plans come from [Mealie](https://mealie.io) via Home Assistant's Mealie integration, with a new "Week Menu" card.
 > Add this fork to Home Assistant with the repository URL `https://github.com/xxdragox/beacon`.
 
 ---

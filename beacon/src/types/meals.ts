@@ -1,4 +1,7 @@
-export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
+export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Side' | 'Dessert' | 'Snack' | 'Drink';
+
+/** Display order of meal types within a day. */
+export const MEAL_TYPE_ORDER: MealType[] = ['Breakfast', 'Lunch', 'Dinner', 'Side', 'Dessert', 'Snack', 'Drink'];
 
 export interface MealPlanEntry {
   date: string;       // YYYY-MM-DD

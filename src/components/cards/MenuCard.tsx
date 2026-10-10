@@ -2,11 +2,14 @@ import { DashboardCardProps } from '../../types/dashboard-cards';
 import { MealType } from '../../types/meals';
 import { useTranslation } from '../../i18n';
 
-const MEAL_ICONS: Record<MealType, string> = {
+export const MEAL_ICONS: Record<MealType, string> = {
   Breakfast: '🌅',
   Lunch: '☀️',
   Dinner: '🌙',
+  Side: '🥗',
+  Dessert: '🍰',
   Snack: '🍎',
+  Drink: '🥤',
 };
 
 /** Sidebar "Menu" section — today's meal plan. */

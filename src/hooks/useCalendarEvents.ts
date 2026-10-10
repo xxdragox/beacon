@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { CalendarEvent, CalendarInfo, CalendarColorMember, resolveCalendarColor } from '../types';
 import { haFetch, hasToken, callBeaconAction, BeaconActionError } from '../api/ha-rest';
 import { HomeAssistantClient, toWsEventPayload } from '../api/homeassistant';
+import { isMealCalendar } from '../api/meal-calendars';
 
 /**
  * Re-thrown by createEvent/updateEvent/deleteEvent when HA reports the calendar
@@ -53,7 +54,8 @@ export function useCalendarEvents(
 
     try {
       const data = await haFetch('/api/calendars') as Array<{ entity_id: string; name: string }>;
-      const cals = data.map((cal, index) => ({
+      // Meal plan calendars (Mealie) feed the Menu cards, not the family calendar.
+      const cals = data.filter((cal) => !isMealCalendar(cal.entity_id)).map((cal, index) => ({
         id: cal.entity_id,
         name: cal.name,
         color: resolveCalendarColor(cal.entity_id, index, colorOptionsRef.current),
