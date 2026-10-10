@@ -24,17 +24,6 @@
   gap: 16px;
 }
 
-.focus-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 3px solid var(--focus-accent, var(--accent));
-  font-size: 2rem;
-}
-
 .focus-greeting {
   font-size: 1rem;
   color: var(--text-muted);

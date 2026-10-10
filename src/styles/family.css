@@ -429,15 +429,11 @@
   flex-shrink: 0;
 }
 
-.chore-card-avatar {
-  width: 36px;
-  height: 36px;
+.chore-card-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  border: 2px solid;
 }
 
 .chore-card-body {
@@ -758,18 +754,6 @@
   text-align: center;
   font-weight: 700;
   color: var(--text-muted);
-}
-
-.lb-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  border: 2px solid;
-  flex-shrink: 0;
 }
 
 .lb-info {

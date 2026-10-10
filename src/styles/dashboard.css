@@ -240,18 +240,6 @@
   background: var(--bg-hover);
 }
 
-.dash-member-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  border: 2px solid;
-  flex-shrink: 0;
-}
-
 .dash-member-name {
   font-family: var(--font-display);
   font-size: 15px;
@@ -606,17 +594,6 @@
   padding: 2px 8px 2px 2px;
   border-radius: 999px;
   border: 1.5px solid;
-  flex-shrink: 0;
-}
-
-.task-checklist-avatar {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
   flex-shrink: 0;
 }
 

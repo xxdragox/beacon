@@ -139,7 +139,6 @@ function UnassignedChoreCard({
                     onClick={() => handleMemberSelect(m.id)}
                     style={{ borderColor: m.color, backgroundColor: m.color + '15' }}
                   >
-                    <span>{m.avatar}</span>
                     <span>{m.name}</span>
                   </button>
                 ))}
@@ -311,12 +310,6 @@ export function ChoresView() {
           {memberChoreGroups.map(({ member, chores: memberChores, progress, streak }) => (
             <section key={member.id} className="chores-member-col">
               <div className="dash-member-header">
-                <span
-                  className="dash-member-avatar"
-                  style={{ backgroundColor: member.color + '22', borderColor: member.color }}
-                >
-                  {member.avatar}
-                </span>
                 <span className="dash-member-name" style={{ color: member.color }}>
                   {member.name}
                 </span>
@@ -475,7 +468,6 @@ export function ChoresView() {
                           : {}
                       }
                     >
-                      <span>{m.avatar}</span>
                       <span>{m.name}</span>
                     </button>
                   ))}

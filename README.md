@@ -26,6 +26,10 @@
   <img src="src/assets/beacon-mockup-dark-light.png" alt="Beacon screenshot showing dark and light themes" width="720" />
 </p>
 
+> **Fork note (xxdragox/beacon):** this is a personal fork of [asachs01/beacon](https://github.com/asachs01/beacon).
+> Changes from upstream: family member emoji avatars are removed throughout the UI (chore cards show a member-colored dot instead).
+> Add this fork to Home Assistant with the repository URL `https://github.com/xxdragox/beacon`.
+
 ---
 
 ## Skylight alternative — without the subscription

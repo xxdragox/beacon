@@ -20,7 +20,6 @@ import { themes } from '../styles/themes';
 import {
   FamilyMember,
   MEMBER_COLORS,
-  AVATAR_CATEGORIES,
   Routine,
 } from '../types/family';
 import type { BeaconSettings } from '../hooks/useSettings';
@@ -667,7 +666,7 @@ export function SettingsView({
       return (
         <>
           <h2 className="settings-section-title">
-            {routinesFor.avatar} {routinesFor.name} {t('settings.family.routinesTitleSuffix')}
+            {routinesFor.name} {t('settings.family.routinesTitleSuffix')}
           </h2>
           <p className="settings-section-desc">
             {t('settings.family.routinesDesc')}
@@ -899,15 +898,6 @@ export function SettingsView({
             )}
             {members.map((member) => (
               <div key={member.id} className="settings-fm-card">
-                <div
-                  className="settings-fm-avatar"
-                  style={{
-                    backgroundColor: member.color + '22',
-                    border: `2px solid ${member.color}`,
-                  }}
-                >
-                  {member.avatar}
-                </div>
                 <div className="settings-fm-info">
                   <div className="settings-fm-name">{member.name}</div>
                   <div className="settings-fm-role">{member.role === 'parent' ? t('settings.family.parent') : t('settings.family.child')}</div>
@@ -990,30 +980,6 @@ export function SettingsView({
               ]}
               onChange={(v) => setMemberForm((f) => ({ ...f, role: v }))}
             />
-          </div>
-          <div className="settings-row" style={{ alignItems: 'flex-start' }}>
-            <div className="settings-row-label" style={{ paddingTop: 4 }}>{t('settings.family.avatarLabel')}</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxWidth: 300 }}>
-              {AVATAR_CATEGORIES.flatMap((cat) => cat.emojis).map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 8,
-                    border: memberForm.avatar === emoji ? '2px solid var(--accent)' : '1px solid var(--border)',
-                    background: memberForm.avatar === emoji ? 'var(--bg-today)' : 'none',
-                    fontSize: '1.2rem',
-                    cursor: 'pointer',
-                    transition: 'all 150ms ease',
-                  }}
-                  onClick={() => setMemberForm((f) => ({ ...f, avatar: emoji }))}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
           </div>
           <div className="settings-row" style={{ alignItems: 'flex-start' }}>
             <div className="settings-row-label" style={{ paddingTop: 4 }}>{t('settings.family.colorLabel')}</div>
@@ -1633,7 +1599,7 @@ export function SettingsView({
             <option value="">{t('settings.display.chooseAMember')}</option>
             {members.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.avatar} {m.name}
+                {m.name}
               </option>
             ))}
           </select>

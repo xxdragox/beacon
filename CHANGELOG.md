@@ -1,3 +1,10 @@
+# [1.38.0-mc7.1](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-10)
+
+Fork changes (xxdragox/beacon):
+
+* remove family member emoji avatars everywhere (calendar dashboard, focus view, chores, leaderboard, task checklist, settings); chore cards show a member-colored dot instead
+* remove the avatar picker from the family member form
+
 # [1.38.0](https://github.com/asachs01/beacon/compare/v1.37.0...v1.38.0) (2026-10-03)
 
 

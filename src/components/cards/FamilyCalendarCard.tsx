@@ -46,12 +46,6 @@ export function FamilyCalendarCard({ config, context }: DashboardCardProps) {
               aria-pressed={isSelected}
               aria-label={t('dashboard.filterChoresFor', { name: member.name })}
             >
-              <span
-                className="dash-member-avatar"
-                style={{ backgroundColor: member.color + '22', borderColor: member.color }}
-              >
-                {member.avatar}
-              </span>
               <span className="dash-member-name" style={{ color: member.color }}>
                 {member.name}
               </span>
@@ -73,9 +67,6 @@ export function FamilyCalendarCard({ config, context }: DashboardCardProps) {
       {showOther && other.length > 0 && (
         <section className="dash-member-col dash-member-col--other">
           <div className="dash-member-header">
-            <span className="dash-member-avatar" style={{ backgroundColor: 'var(--bg-hover)', borderColor: 'var(--border)' }}>
-              📅
-            </span>
             <span className="dash-member-name">{t('dashboard.other')}</span>
           </div>
           <div className="dash-member-events">

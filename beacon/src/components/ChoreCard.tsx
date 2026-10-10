@@ -78,11 +78,10 @@ export function ChoreCard({
     >
       <div className="chore-card-left">
         <span
-          className="chore-card-avatar"
-          style={{ backgroundColor: member.color + '22', borderColor: member.color }}
-        >
-          {member.avatar}
-        </span>
+          className="chore-card-dot"
+          style={{ backgroundColor: member.color }}
+          title={member.name}
+        />
       </div>
 
       <div className="chore-card-body">

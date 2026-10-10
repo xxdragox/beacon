@@ -88,12 +88,6 @@ export function FocusView({ memberId, settings, onExit }: FocusViewProps) {
     <div className="focus-view" style={{ '--focus-accent': member.color } as CSSProperties}>
       <header className="focus-header">
         <div className="focus-member">
-          <span
-            className="focus-avatar"
-            style={{ borderColor: member.color, backgroundColor: member.color + '22' }}
-          >
-            {member.avatar}
-          </span>
           <div>
             <div className="focus-greeting">{GREETINGS[getTimeOfDay(now)]},</div>
             <div className="focus-name">{member.name}</div>

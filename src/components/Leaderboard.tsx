@@ -100,12 +100,6 @@ export function Leaderboard({ open, onClose }: LeaderboardProps) {
               <span className="lb-rank">
                 {index < 3 ? RANK_DECORATIONS[index] : `#${index + 1}`}
               </span>
-              <span
-                className="lb-avatar"
-                style={{ backgroundColor: entry.member.color + '22', borderColor: entry.member.color }}
-              >
-                {entry.member.avatar}
-              </span>
               <div className="lb-info">
                 <span className="lb-name">{entry.member.name}</span>
                 <span className="lb-stats">
