@@ -103,6 +103,11 @@ export const ja: Record<TranslationKey, string> = {
   'calendarFilter.label': 'カレンダー',
   'calendarFilter.showAll': 'すべて表示',
   'calendarFilter.hideAll': 'すべて非表示',
+  'monthCalendar.previousMonth': '前の月',
+  'monthCalendar.nextMonth': '次の月',
+  'monthCalendar.more': '他{count}件',
+  'calendarView.week': '週',
+  'calendarView.month': '月',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': '家事',

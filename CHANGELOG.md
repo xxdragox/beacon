@@ -1,3 +1,11 @@
+# [1.38.0-mc7.11](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon):
+
+* Calendar page **Month** view with a Week | Month toggle (remembered per screen): a month grid of events in their calendar colors, all-day first then timed with start times, "+N more" on busy days. Tapping an event opens it; tapping a day opens that week in the week view. The Calendars menu applies to both views
+* the calendar fetches whatever range is on screen (a whole month in month view) instead of always one week, and refreshes that range after edits
+* calendars are fetched in parallel instead of one after another, and a slow response for a range you've already paged past can no longer overwrite the current one
+
 # [1.38.0-mc7.10](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon):

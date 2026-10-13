@@ -103,6 +103,11 @@ export const it: Record<TranslationKey, string> = {
   'calendarFilter.label': 'Calendari',
   'calendarFilter.showAll': 'Mostra tutti',
   'calendarFilter.hideAll': 'Nascondi tutti',
+  'monthCalendar.previousMonth': 'Mese precedente',
+  'monthCalendar.nextMonth': 'Mese successivo',
+  'monthCalendar.more': '+{count} altri',
+  'calendarView.week': 'Settimana',
+  'calendarView.month': 'Mese',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Faccenda',

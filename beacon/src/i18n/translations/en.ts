@@ -108,6 +108,11 @@ export const en = {
   'calendarFilter.label': 'Calendars',
   'calendarFilter.showAll': 'Show all',
   'calendarFilter.hideAll': 'Hide all',
+  'monthCalendar.previousMonth': 'Previous month',
+  'monthCalendar.nextMonth': 'Next month',
+  'monthCalendar.more': '+{count} more',
+  'calendarView.week': 'Week',
+  'calendarView.month': 'Month',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Chore',

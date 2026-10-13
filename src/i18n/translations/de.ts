@@ -103,6 +103,11 @@ export const de: Record<TranslationKey, string> = {
   'calendarFilter.label': 'Kalender',
   'calendarFilter.showAll': 'Alle anzeigen',
   'calendarFilter.hideAll': 'Alle ausblenden',
+  'monthCalendar.previousMonth': 'Vorheriger Monat',
+  'monthCalendar.nextMonth': 'Nächster Monat',
+  'monthCalendar.more': '+{count} weitere',
+  'calendarView.week': 'Woche',
+  'calendarView.month': 'Monat',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Aufgabe',

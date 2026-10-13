@@ -2226,3 +2226,129 @@ a:focus:not(:focus-visible) {
 .cal-filter-action:hover {
   background: var(--bg-hover);
 }
+
+/* ─── Calendar Week | Month toggle + month view (fork) ─── */
+.calendar-view-toggle {
+  height: 32px;
+}
+
+.calendar-view-toggle .settings-segment-btn {
+  padding: 0 12px;
+}
+
+.month-calendar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: auto repeat(var(--weeks, 6), minmax(90px, 1fr));
+  gap: 1px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--border-subtle);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.month-grid-head {
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.month-grid-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  min-height: 0;
+  padding: 4px 6px 6px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.month-grid-cell:hover {
+  background: color-mix(in srgb, var(--accent) 4%, var(--bg-surface));
+}
+
+.month-grid-cell--outside {
+  background: var(--bg-primary);
+}
+
+.month-grid-cell--outside .month-grid-num {
+  color: var(--text-light);
+}
+
+.month-grid-num {
+  align-self: flex-end;
+  min-width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.month-grid-cell--today .month-grid-num {
+  background: var(--accent);
+  color: #fff;
+}
+
+.month-event {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  padding: 1px 6px;
+  border: none;
+  border-left: 3px solid var(--event-color);
+  border-radius: 4px;
+  background: var(--event-pastel);
+  color: #1f2937;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+
+.month-event--allday {
+  background: var(--event-color);
+  color: #fff;
+  border-left-color: transparent;
+}
+
+.month-event-time {
+  flex-shrink: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.month-event-title {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.month-grid-more {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-left: 6px;
+}

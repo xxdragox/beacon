@@ -1,5 +1,6 @@
 import { useMemo, useRef, useEffect, useState, useCallback } from 'react';
 import {
+  differenceInCalendarWeeks,
   startOfWeek,
   addDays,
   addWeeks,
@@ -28,6 +29,8 @@ interface WeekCalendarProps {
   weekStartsOn: 0 | 1;
   /** Extra controls at the start of the toolbar's right side (e.g. the calendar filter menu). */
   toolbarExtra?: React.ReactNode;
+  /** Week to open on (e.g. a day picked in the month view); defaults to this week. */
+  initialWeekStart?: Date | null;
 }
 
 const START_HOUR = 7;
@@ -71,7 +74,7 @@ interface MultiDaySpan {
   lane: number;
 }
 
-export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClick, onEventReschedule, onVisibleWeekChange, weekStartsOn, toolbarExtra }: WeekCalendarProps) {
+export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClick, onEventReschedule, onVisibleWeekChange, weekStartsOn, toolbarExtra, initialWeekStart }: WeekCalendarProps) {
   const today = new Date();
   const todayWeekStart = startOfWeek(today, { weekStartsOn });
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -80,7 +83,9 @@ export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClic
   const { t, dateLocale } = useTranslation();
 
   // Week navigation: offset in weeks from today's week (0 = current, +1 = next, -1 = prev)
-  const [weekOffset, setWeekOffset] = useState(0);
+  const [weekOffset, setWeekOffset] = useState(() =>
+    initialWeekStart ? differenceInCalendarWeeks(initialWeekStart, today, { weekStartsOn }) : 0,
+  );
   const weekStart = useMemo(
     () => startOfWeek(addWeeks(today, weekOffset), { weekStartsOn }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

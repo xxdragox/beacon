@@ -46,6 +46,8 @@ export function useCalendarEvents(
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const calendarsRef = useRef<CalendarInfo[]>([]);
+  /** Latest fetchEvents call; older responses arriving late are dropped. */
+  const fetchSeq = useRef(0);
   const colorOptionsRef = useRef(colorOptions);
   colorOptionsRef.current = colorOptions;
 
@@ -71,6 +73,7 @@ export function useCalendarEvents(
 
   const fetchEvents = useCallback(async (start: string, end: string) => {
     if (!connected && !hasToken()) return;
+    const seq = ++fetchSeq.current;
 
     setLoading(true);
     try {
@@ -80,8 +83,8 @@ export function useCalendarEvents(
       }
       if (cals.length === 0) return;
 
-      const allEvents: CalendarEvent[] = [];
-      for (const cal of cals) {
+      // All calendars in parallel (a month range is slow per calendar).
+      const perCalendar = await Promise.all(cals.map(async (cal): Promise<CalendarEvent[]> => {
         try {
           const params = new URLSearchParams({ start, end });
           const result = await haFetch(`/api/calendars/${cal.id}?${params}`) as Array<{
@@ -94,7 +97,7 @@ export function useCalendarEvents(
             recurrence_id?: string;
           }>;
 
-          for (const ev of (result || [])) {
+          return (result || []).map((ev, i): CalendarEvent => {
             const startStr = typeof ev.start === 'string' ? ev.start : (ev.start.dateTime || ev.start.date);
             const endStr = typeof ev.end === 'string' ? ev.end : (ev.end.dateTime || ev.end.date);
             const allDay = typeof ev.start === 'string'
@@ -108,8 +111,8 @@ export function useCalendarEvents(
             // real uid) can be blocked with a clear error instead of
             // silently no-op'ing server-side.
             const realUid = ev.uid || ev.recurrence_id;
-            allEvents.push({
-              id: realUid || `${cal.id}-${allEvents.length}`,
+            return {
+              id: realUid || `${cal.id}-${i}`,
               title: ev.summary,
               start: startStr,
               end: endStr,
@@ -121,13 +124,17 @@ export function useCalendarEvents(
               color: cal.color,
               hasStableId: !!realUid,
               recurrenceId: ev.recurrence_id || undefined,
-            });
-          }
+            };
+          });
         } catch (err) {
           console.error(`Failed to fetch events for ${cal.name}:`, err);
+          return [];
         }
-      }
+      }));
 
+      // A newer fetch (e.g. the user paged ahead again) supersedes this one.
+      if (fetchSeq.current !== seq) return;
+      const allEvents = perCalendar.flat();
       allEvents.sort((a, b) => a.start.localeCompare(b.start));
       setEvents(allEvents);
     } finally {

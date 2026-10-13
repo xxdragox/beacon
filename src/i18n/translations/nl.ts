@@ -103,6 +103,11 @@ export const nl: Record<TranslationKey, string> = {
   'calendarFilter.label': 'Agenda\'s',
   'calendarFilter.showAll': 'Alles tonen',
   'calendarFilter.hideAll': 'Alles verbergen',
+  'monthCalendar.previousMonth': 'Vorige maand',
+  'monthCalendar.nextMonth': 'Volgende maand',
+  'monthCalendar.more': '+{count} meer',
+  'calendarView.week': 'Week',
+  'calendarView.month': 'Maand',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Klusje',
