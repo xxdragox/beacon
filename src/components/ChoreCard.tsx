@@ -11,6 +11,11 @@ interface ChoreCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
   currencySymbol?: string;
+  /** Small line under the name, e.g. "Overdue · was due Sat, Oct 10" or "Shared". */
+  note?: string;
+  noteTone?: 'overdue' | 'muted';
+  /** Checkbox can't be toggled (past or future days). */
+  disabled?: boolean;
 }
 
 function formatCents(cents: number, currencySymbol: string): string {
@@ -26,6 +31,9 @@ export function ChoreCard({
   onEdit,
   onDelete,
   currencySymbol = '$',
+  note,
+  noteTone = 'muted',
+  disabled = false,
 }: ChoreCardProps) {
   const [animating, setAnimating] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -33,6 +41,7 @@ export function ChoreCard({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleToggle = () => {
+    if (disabled) return;
     if (isCompleted) {
       onUncomplete();
       return;
@@ -89,6 +98,7 @@ export function ChoreCard({
           {chore.icon && <span className="chore-card-icon">{chore.icon}</span>}
           {chore.name}
         </span>
+        {note && <span className={`chore-card-note chore-card-note--${noteTone}`}>{note}</span>}
         {value && <span className="chore-card-value">{value}</span>}
       </div>
 
@@ -125,6 +135,7 @@ export function ChoreCard({
         type="button"
         className={`chore-checkbox ${isCompleted ? 'chore-checkbox--checked' : ''} ${animating ? 'chore-checkbox--bounce' : ''}`}
         onClick={handleToggle}
+        disabled={disabled}
         aria-label={isCompleted ? `Undo ${chore.name}` : `Complete ${chore.name}`}
       >
         {isCompleted && (

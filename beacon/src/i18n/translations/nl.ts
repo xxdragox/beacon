@@ -98,6 +98,8 @@ export const nl: Record<TranslationKey, string> = {
   'taskChecklist.allDone': 'Helemaal klaar — goed gedaan!',
   'taskChecklist.complete': '{name} voltooien',
   'taskChecklist.undo': '{name} ongedaan maken',
+  'taskChecklist.overdue': 'Te laat',
+  'taskChecklist.whoDidIt': 'Wie heeft het gedaan?',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Klusje',

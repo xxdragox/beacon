@@ -130,20 +130,31 @@ export class FamilyStore {
     });
   }
 
-  async completeChore(choreId: string, memberId: string, verifiedBy?: string): Promise<ChoreCompletion> {
+  /**
+   * Record `memberId` doing `choreId` for the occurrence due on `dueDate`
+   * (default today — an overdue chore checked off later passes its own due date).
+   * With `anyMember` (shared chores), anyone's completion of that occurrence counts.
+   */
+  async completeChore(
+    choreId: string,
+    memberId: string,
+    verifiedBy?: string,
+    dueDate: string = localDayKey(),
+    anyMember = false,
+  ): Promise<ChoreCompletion> {
     const completions = await this.getCompletions();
-    const today = localDayKey();
     const existing = completions.find(
       (c) =>
         c.chore_id === choreId &&
-        c.member_id === memberId &&
-        localDayKey(c.completed_at) === today
+        (anyMember || c.member_id === memberId) &&
+        (c.due_date ?? localDayKey(c.completed_at)) === dueDate
     );
     if (existing) return existing;
     const completion: ChoreCompletion = {
       chore_id: choreId,
       member_id: memberId,
       completed_at: new Date().toISOString(),
+      due_date: dueDate,
       verified_by: verifiedBy,
     };
     completions.push(completion);
@@ -155,14 +166,19 @@ export class FamilyStore {
     return completion;
   }
 
-  async uncompleteChore(choreId: string, memberId: string): Promise<boolean> {
+  /** Undo a completion of the occurrence due on `dueDate` (default today). */
+  async uncompleteChore(
+    choreId: string,
+    memberId: string,
+    dueDate: string = localDayKey(),
+    anyMember = false,
+  ): Promise<boolean> {
     const completions = await this.getCompletions();
-    const today = localDayKey();
     const index = completions.findIndex(
       (c) =>
         c.chore_id === choreId &&
-        c.member_id === memberId &&
-        localDayKey(c.completed_at) === today
+        (anyMember || c.member_id === memberId) &&
+        (c.due_date ?? localDayKey(c.completed_at)) === dueDate
     );
     if (index === -1) return false;
     completions.splice(index, 1);

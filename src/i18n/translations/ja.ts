@@ -98,6 +98,8 @@ export const ja: Record<TranslationKey, string> = {
   'taskChecklist.allDone': 'すべて完了 — よくできました!',
   'taskChecklist.complete': '{name}を完了する',
   'taskChecklist.undo': '{name}を元に戻す',
+  'taskChecklist.overdue': '期限切れ',
+  'taskChecklist.whoDidIt': '誰がやった？',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': '家事',

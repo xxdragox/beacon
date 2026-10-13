@@ -5,6 +5,8 @@ import { useCalendarEvents, CalendarNotSupportedError } from './hooks/useCalenda
 import { useFamily } from './hooks/useFamily';
 import { useWeather } from './hooks/useWeather';
 import { useChores } from './hooks/useChores';
+import { useTodayKey, choreItemsForDay, toggleOccurrence } from './hooks/useChoreDay';
+import type { ChoreOccurrence } from './api/chore-schedule';
 import { Clock } from './components/Clock';
 import { WeekCalendar } from './components/WeekCalendar';
 import { DashboardView } from './components/DashboardView';
@@ -126,10 +128,11 @@ export function App() {
   const music = useMusic(client, connected);
   const {
     chores,
-    completionsToday,
+    completions: choreCompletions,
     completeChore,
     uncompleteChore,
   } = useChores();
+  const todayKey = useTodayKey();
 
   const dashboardTasks = useDashboardTasks(connected, settings.groceryListIds);
 
@@ -449,28 +452,18 @@ export function App() {
     setShowLeaderboard(false);
   }, []);
 
-  // Build a set of chore IDs completed today (for the dashboard checklist).
-  // We use the first member for now; a member-picker could be added later.
-  const firstMemberId = members.length > 0 ? members[0].id : '__none__';
-  const completedChoreIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const c of completionsToday) {
-      if (c.member_id === firstMemberId) {
-        ids.add(c.chore_id);
-      }
-    }
-    return ids;
-  }, [completionsToday, firstMemberId]);
+  // Today's chore occurrences (due today + overdue) for the dashboard and
+  // calendar sidebar. Each check-off credits the person it belongs to; shared
+  // chores credit whoever the checklist says did it.
+  const choreItems = useMemo(
+    () => (settings.choresEnabled ? choreItemsForDay(chores, choreCompletions, todayKey, todayKey) : []),
+    [settings.choresEnabled, chores, choreCompletions, todayKey],
+  );
 
-  const handleToggleChore = useCallback(
-    (choreId: string) => {
-      if (completedChoreIds.has(choreId)) {
-        uncompleteChore(choreId, firstMemberId);
-      } else {
-        completeChore(choreId, firstMemberId);
-      }
-    },
-    [completedChoreIds, completeChore, uncompleteChore, firstMemberId]
+  const handleToggleChoreItem = useCallback(
+    (item: ChoreOccurrence, creditMemberId?: string) =>
+      toggleOccurrence(item, todayKey, completeChore, uncompleteChore, creditMemberId),
+    [todayKey, completeChore, uncompleteChore],
   );
 
   // Handle onboarding completion
@@ -590,9 +583,9 @@ export function App() {
             <DashboardView
               events={visibleEvents}
               weather={weather}
-              chores={settings.choresEnabled ? chores : []}
-              completedChoreIds={completedChoreIds}
-              onToggleChore={handleToggleChore}
+              choreItems={choreItems}
+              today={todayKey}
+              onToggleChoreItem={handleToggleChoreItem}
               todoItems={dashboardTasks.items}
               onToggleTodo={dashboardTasks.toggleItem}
               onWeatherClick={() => setActiveView('weather')}
@@ -714,9 +707,9 @@ export function App() {
               </div>
               <CalendarSidebar
                 events={visibleEvents}
-                chores={settings.choresEnabled ? chores : []}
-                completedChoreIds={completedChoreIds}
-                onToggleChore={handleToggleChore}
+                choreItems={choreItems}
+                today={todayKey}
+                onToggleChoreItem={handleToggleChoreItem}
                 todoItems={dashboardTasks.items}
                 onToggleTodo={dashboardTasks.toggleItem}
                 members={members}

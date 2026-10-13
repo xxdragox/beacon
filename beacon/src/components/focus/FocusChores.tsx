@@ -1,30 +1,33 @@
 import { useState } from 'react';
-import { Chore } from '../../types/family';
 import { formatChoreValue } from '../../types/family';
+import { ChoreOccurrence, canToggle } from '../../api/chore-schedule';
+import { occurrenceKey } from '../../hooks/useChoreDay';
 import { hapticMedium, hapticSuccess } from '../../hooks/useHaptics';
 
 interface FocusChoresProps {
-  chores: Chore[];
-  completedIds: Set<string>;
+  /** This person's chore occurrences due today, plus overdue. */
+  items: ChoreOccurrence[];
+  today: string;
   currencySymbol: string;
-  onToggle: (choreId: string) => void;
+  onToggle: (item: ChoreOccurrence) => void;
 }
 
-export function FocusChores({ chores, completedIds, currencySymbol, onToggle }: FocusChoresProps) {
+export function FocusChores({ items, today, currencySymbol, onToggle }: FocusChoresProps) {
   const [animatingId, setAnimatingId] = useState<string | null>(null);
 
-  if (chores.length === 0) return null;
+  if (items.length === 0) return null;
 
-  const remaining = chores.filter((c) => !completedIds.has(c.id)).length;
+  const remaining = items.filter((o) => o.state !== 'done').length;
 
-  const handleToggle = (choreId: string) => {
-    if (!completedIds.has(choreId)) {
-      setAnimatingId(choreId);
+  const handleToggle = (item: ChoreOccurrence) => {
+    if (!canToggle(item, today)) return;
+    if (item.state !== 'done') {
+      setAnimatingId(occurrenceKey(item));
       setTimeout(() => setAnimatingId(null), 400);
       hapticMedium();
       if (remaining === 1) hapticSuccess();
     }
-    onToggle(choreId);
+    onToggle(item);
   };
 
   return (
@@ -32,18 +35,21 @@ export function FocusChores({ chores, completedIds, currencySymbol, onToggle }: 
       <header className="focus-card-header">
         <h2 className="focus-card-title">Chores</h2>
         <span className="focus-card-count">
-          {remaining === 0 ? 'Done!' : `${chores.length - remaining}/${chores.length}`}
+          {remaining === 0 ? 'Done!' : `${items.length - remaining}/${items.length}`}
         </span>
       </header>
       <ul className="focus-checklist">
-        {chores.map((chore) => {
-          const done = completedIds.has(chore.id);
+        {items.map((item) => {
+          const { chore } = item;
+          const done = item.state === 'done';
+          const key = occurrenceKey(item);
           return (
-            <li key={chore.id}>
+            <li key={key}>
               <button
                 type="button"
-                className={`focus-check-row ${done ? 'focus-check-row--done' : ''} ${animatingId === chore.id ? 'focus-check-row--completing' : ''}`}
-                onClick={() => handleToggle(chore.id)}
+                className={`focus-check-row ${done ? 'focus-check-row--done' : ''} ${animatingId === key ? 'focus-check-row--completing' : ''}`}
+                onClick={() => handleToggle(item)}
+                disabled={!canToggle(item, today)}
                 aria-label={done ? `Undo ${chore.name}` : `Complete ${chore.name}`}
               >
                 <span className="focus-check-box">
@@ -56,6 +62,7 @@ export function FocusChores({ chores, completedIds, currencySymbol, onToggle }: 
                 <span className="focus-check-label">
                   {chore.icon && <span className="focus-check-icon">{chore.icon}</span>}
                   {chore.name}
+                  {item.state === 'overdue' && <span className="task-checklist-overdue">Overdue</span>}
                 </span>
                 {chore.value_cents > 0 && (
                   <span className="focus-check-value">

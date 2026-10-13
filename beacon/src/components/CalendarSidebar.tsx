@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 import { format, parseISO, isSameDay, startOfDay } from 'date-fns';
 import { CalendarEvent } from '../types';
-import { Chore, FamilyMember } from '../types/family';
+import { FamilyMember } from '../types/family';
+import type { ChoreOccurrence } from '../api/chore-schedule';
 import { TaskChecklist } from './TaskChecklist';
 import { DashboardTodoItem } from '../hooks/useDashboardTasks';
 import { useTranslation } from '../i18n';
 
 interface CalendarSidebarProps {
   events: CalendarEvent[];
-  chores: Chore[];
-  completedChoreIds: Set<string>;
-  onToggleChore: (choreId: string) => void;
+  choreItems: ChoreOccurrence[];
+  today: string;
+  onToggleChoreItem: (item: ChoreOccurrence, creditMemberId?: string) => void;
   todoItems: DashboardTodoItem[];
   onToggleTodo?: (uid: string, currentStatus: string) => void;
   members?: FamilyMember[];
@@ -18,9 +19,9 @@ interface CalendarSidebarProps {
 
 export function CalendarSidebar({
   events,
-  chores,
-  completedChoreIds,
-  onToggleChore,
+  choreItems,
+  today: todayKey,
+  onToggleChoreItem,
   todoItems,
   onToggleTodo,
   members = [],
@@ -84,11 +85,11 @@ export function CalendarSidebar({
               </li>
             ))}
           </ul>
-        ) : chores.length > 0 ? (
+        ) : choreItems.length > 0 ? (
           <TaskChecklist
-            chores={chores}
-            completedIds={completedChoreIds}
-            onToggle={onToggleChore}
+            items={choreItems}
+            today={todayKey}
+            onToggle={onToggleChoreItem}
             members={members}
           />
         ) : (

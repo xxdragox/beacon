@@ -2,66 +2,85 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FamilyStore } from '../api/family';
 import { Chore, ChoreCompletion, Streak, MemberEarnings } from '../types/family';
 
+/**
+ * Each component calling useChores() keeps its own copy of the data, so a
+ * change made on one screen (e.g. checking off a chore on the Chores page)
+ * is broadcast and every other copy (dashboard, Focus view) reloads.
+ */
+const CHORES_CHANGED = 'beacon-chores-changed';
+
 export function useChores() {
   const store = useMemo(() => new FamilyStore(), []);
   // Initialize with localStorage data immediately
   const [chores, setChores] = useState<Chore[]>(() => store.getChoresSync());
   const [completionsToday, setCompletionsToday] = useState<ChoreCompletion[]>([]);
+  /** Full completion history — scheduled views need past occurrences, not just today's. */
+  const [completions, setCompletions] = useState<ChoreCompletion[]>(() => store.getCompletionsSync());
   const [streaks, setStreaks] = useState<Streak[]>([]);
 
   const refresh = useCallback(async () => {
-    const [c, ct, s] = await Promise.all([
+    const [c, ct, all, s] = await Promise.all([
       store.getChores(),
       store.getCompletionsToday(),
+      store.getCompletions(),
       store.getStreaks(),
     ]);
     setChores(c);
     setCompletionsToday(ct);
+    setCompletions(all);
     setStreaks(s);
   }, [store]);
 
   useEffect(() => {
     refresh();
+    window.addEventListener(CHORES_CHANGED, refresh);
+    return () => window.removeEventListener(CHORES_CHANGED, refresh);
   }, [refresh]);
+
+  /** Reload this copy and tell every other useChores() copy to reload too. */
+  const changed = useCallback(async () => {
+    window.dispatchEvent(new Event(CHORES_CHANGED));
+  }, []);
 
   const addChore = useCallback(
     async (chore: Omit<Chore, 'id'>) => {
       await store.addChore(chore);
-      await refresh();
+      await changed();
     },
-    [store, refresh]
+    [store, changed]
   );
 
   const updateChore = useCallback(
     async (id: string, data: Partial<Omit<Chore, 'id'>>) => {
       await store.updateChore(id, data);
-      await refresh();
+      await changed();
     },
-    [store, refresh]
+    [store, changed]
   );
 
   const removeChore = useCallback(
     async (id: string) => {
       await store.removeChore(id);
-      await refresh();
+      await changed();
     },
-    [store, refresh]
+    [store, changed]
   );
 
+  /** `dueDate` = the occurrence being checked off (default today); `anyMember` for shared chores. */
   const completeChore = useCallback(
-    async (choreId: string, memberId: string) => {
-      await store.completeChore(choreId, memberId);
-      await refresh();
+    async (choreId: string, memberId: string, dueDate?: string, anyMember?: boolean) => {
+      await store.completeChore(choreId, memberId, undefined, dueDate, anyMember);
+      await changed();
     },
-    [store, refresh]
+    [store, changed]
   );
 
   const uncompleteChore = useCallback(
-    async (choreId: string, memberId: string) => {
-      await store.uncompleteChore(choreId, memberId);
-      await refresh();
+    async (choreId: string, memberId: string, dueDate?: string, anyMember?: boolean) => {
+      await store.uncompleteChore(choreId, memberId, dueDate, anyMember);
+      await changed();
     },
-    [store, refresh]
+    [store, changed]
   );
 
   const isChoreCompletedToday = useCallback(
@@ -137,6 +156,7 @@ export function useChores() {
   return {
     chores,
     completionsToday,
+    completions,
     streaks,
     addChore,
     updateChore,

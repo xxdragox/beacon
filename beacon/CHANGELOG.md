@@ -1,3 +1,15 @@
+# [1.38.0-mc7.6](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon), scheduled chores (part 1):
+
+* chores have a real schedule: chosen weekdays every N weeks, monthly on a day or the 1st–4th/last weekday every N months (quarterly, yearly…), N days/weeks/months after last done, or one time. Upstream's daily/weekly/once frequency was never acted on; old chores read as daily
+* chores can be **shared**: done once by whichever assignee gets to it, instead of each assignee doing their own
+* a missed chore stays **overdue** until it's done or its next occurrence replaces it; check-offs are limited to today and overdue (no back-filling)
+* Chores page: **Day** view (today's and overdue chores per person, browse other days read-only) and **Manage** tab (every chore grouped Daily → Weekly → Every few weeks → Monthly → Quarterly → Yearly → One time, with a schedule picker and presets)
+* dashboard Tasks card, Calendar sidebar and Focus view show only today's and overdue chores, with an "Overdue" tag; shared/open chores ask "Who did it?"
+* fix chores checked off on the dashboard always crediting the first family member
+* fix chore changes on one screen not showing on the others until a reload
+
 # [1.38.0-mc7.5](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon):

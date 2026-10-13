@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { isSameDay, startOfDay, addDays, parseISO } from 'date-fns';
 import { CalendarEvent, WeatherData } from '../types';
-import { Chore, FamilyMember } from '../types/family';
+import { FamilyMember } from '../types/family';
 import { useFamilyEvents } from '../hooks/useFamilyEvents';
 import { useMealPlans } from '../hooks/useMealPlans';
+import { occurrenceIsFor } from '../hooks/useChoreDay';
+import type { ChoreOccurrence } from '../api/chore-schedule';
 import { useDashboardLayout } from '../hooks/useDashboardLayout';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { cardRegistry } from './cards/registry';
@@ -25,9 +27,10 @@ export type { TodoItem } from '../types/dashboard-cards';
 interface DashboardViewProps {
   events: CalendarEvent[];
   weather: WeatherData | null;
-  chores: Chore[];
-  completedChoreIds: Set<string>;
-  onToggleChore: (choreId: string) => void;
+  /** Today's chore occurrences (plus overdue) for everyone. */
+  choreItems: ChoreOccurrence[];
+  today: string;
+  onToggleChoreItem: (item: ChoreOccurrence, creditMemberId?: string) => void;
   todoItems?: TodoItem[];
   onToggleTodo?: (uid: string, currentStatus: string, listId?: string) => void;
   onWeatherClick?: () => void;
@@ -51,9 +54,9 @@ function renderCard(card: DashboardCard, context: DashboardCardContext) {
 export function DashboardView({
   events,
   weather,
-  chores,
-  completedChoreIds,
-  onToggleChore,
+  choreItems,
+  today,
+  onToggleChoreItem,
   todoItems = [],
   onToggleTodo,
   onWeatherClick,
@@ -80,9 +83,9 @@ export function DashboardView({
   const goToToday = () => onSelectedDateChange(startOfDay(new Date()));
   const isViewingToday = isSameDay(selectedDate, startOfDay(now));
 
-  const filteredChores = selectedMemberFilter
-    ? chores.filter((c) => c.assigned_to.includes(selectedMemberFilter))
-    : chores;
+  const filteredChoreItems = selectedMemberFilter
+    ? choreItems.filter((o) => occurrenceIsFor(o, selectedMemberFilter))
+    : choreItems;
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -148,9 +151,9 @@ export function DashboardView({
     todoItems,
     onToggleTodo,
     taskmateUsers,
-    filteredChores,
-    completedChoreIds,
-    onToggleChore,
+    choreItems: filteredChoreItems,
+    today,
+    onToggleChoreItem,
   };
 
   // The legacy composition deliberately bypasses cards, GridStack, persisted

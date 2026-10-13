@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, CSSProperties } from 'react';
 import { format } from 'date-fns';
 import { useFamily } from '../../hooks/useFamily';
 import { useChores } from '../../hooks/useChores';
+import { useTodayKey, choreItemsForDay, toggleOccurrence } from '../../hooks/useChoreDay';
 import { useRoutines } from '../../hooks/useRoutines';
 import { BeaconSettings } from '../../hooks/useSettings';
 import { ScreenSaver } from '../ScreenSaver';
@@ -57,17 +58,12 @@ export function FocusView({ memberId, settings, onExit }: FocusViewProps) {
     }
   };
 
-  const memberChores = useMemo(
-    () => choresApi.chores.filter((c) => c.assigned_to.includes(memberId)),
-    [choresApi.chores, memberId]
+  const today = useTodayKey();
+  // This person's chores due today, plus anything overdue.
+  const choreItems = useMemo(
+    () => choreItemsForDay(choresApi.chores, choresApi.completions, today, today, memberId),
+    [choresApi.chores, choresApi.completions, today, memberId]
   );
-  const completedChoreIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const c of choresApi.completionsToday) {
-      if (c.member_id === memberId) ids.add(c.chore_id);
-    }
-    return ids;
-  }, [choresApi.completionsToday, memberId]);
 
   const pick = pickRoutine(routinesApi.routines, now);
 
@@ -80,8 +76,8 @@ export function FocusView({ memberId, settings, onExit }: FocusViewProps) {
   const routineDone = currentRoutineTasks.every((t) =>
     routinesApi.isTaskCompletedToday(pick!.routine.id, t.id, memberId)
   );
-  const choresDone = memberChores.every((c) => completedChoreIds.has(c.id));
-  const hadItems = currentRoutineTasks.length + memberChores.length > 0;
+  const choresDone = choreItems.every((o) => o.state === 'done');
+  const hadItems = currentRoutineTasks.length + choreItems.length > 0;
   const allDone = hadItems && routineDone && choresDone;
 
   return (
@@ -121,16 +117,14 @@ export function FocusView({ memberId, settings, onExit }: FocusViewProps) {
               />
             )}
             <FocusChores
-              chores={memberChores}
-              completedIds={completedChoreIds}
+              items={choreItems}
+              today={today}
               currencySymbol={settings.currencySymbol}
-              onToggle={(choreId) =>
-                completedChoreIds.has(choreId)
-                  ? choresApi.uncompleteChore(choreId, memberId)
-                  : choresApi.completeChore(choreId, memberId)
+              onToggle={(item) =>
+                toggleOccurrence(item, today, choresApi.completeChore, choresApi.uncompleteChore, memberId)
               }
             />
-            {!pick && memberChores.length === 0 && (
+            {!pick && choreItems.length === 0 && (
               <div className="focus-empty">
                 Nothing scheduled yet. A parent can add routines and chores in Settings.
               </div>

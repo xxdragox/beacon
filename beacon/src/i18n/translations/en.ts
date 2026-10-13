@@ -103,6 +103,8 @@ export const en = {
   'taskChecklist.allDone': 'All done — great job!',
   'taskChecklist.complete': 'Complete {name}',
   'taskChecklist.undo': 'Undo {name}',
+  'taskChecklist.overdue': 'Overdue',
+  'taskChecklist.whoDidIt': 'Who did it?',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Chore',

@@ -7,7 +7,7 @@ import { useTranslation } from '../../i18n';
 /** Sidebar "Tasks" section — HA todo items (optionally grouped by TaskMate user), or chores checklist fallback. */
 export function TasksCard({ context }: DashboardCardProps) {
   const { t } = useTranslation();
-  const { todoItems, onToggleTodo, taskmateUsers, filteredChores, completedChoreIds, onToggleChore, members } = context;
+  const { todoItems, onToggleTodo, taskmateUsers, choreItems, today, onToggleChoreItem, members, selectedMemberFilter } = context;
 
   return (
     <section className="dash-sidebar-section">
@@ -16,10 +16,11 @@ export function TasksCard({ context }: DashboardCardProps) {
         <TaskGroups items={todoItems} users={taskmateUsers} onToggleTodo={onToggleTodo} />
       ) : (
         <TaskChecklist
-          chores={filteredChores}
-          completedIds={completedChoreIds}
-          onToggle={onToggleChore}
+          items={choreItems}
+          today={today}
+          onToggle={onToggleChoreItem}
           members={members}
+          creditMemberId={selectedMemberFilter}
         />
       )}
     </section>

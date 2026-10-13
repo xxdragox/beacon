@@ -13,11 +13,34 @@ export interface FamilyMember {
   additional_calendar_entities?: string[];
 }
 
+/** 0 = Sunday … 6 = Saturday (Date.getDay()). */
+export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
+ * When a chore is due. Dates are local "YYYY-MM-DD" strings.
+ * - weekly:  on the given weekdays, every `every` weeks counted from `start`
+ * - monthly: every `every` months counted from `start`, on day-of-month `day`
+ *            (clamped to the month's length) or on the `nth` (1–4, -1 = last)
+ *            `weekday` of the month
+ * - after:   `every` days/weeks/months after it was last done (first due on `start`)
+ * - once:    on `date` only
+ */
+export type ChoreSchedule =
+  | { type: 'weekly'; days: Weekday[]; every: number; start: string }
+  | { type: 'monthly'; every: number; start: string; day?: number; nth?: 1 | 2 | 3 | 4 | -1; weekday?: Weekday }
+  | { type: 'after'; every: number; unit: 'day' | 'week' | 'month'; start: string }
+  | { type: 'once'; date: string };
+
 export interface Chore {
   id: string;
   name: string;
   assigned_to: string[]; // member IDs
-  frequency: 'daily' | 'weekly' | 'once';
+  /** When it's due. Chores saved before scheduling only have `frequency`; see chore-schedule.ts scheduleOf(). */
+  schedule?: ChoreSchedule;
+  /** Legacy (upstream) frequency, never acted on. Kept for reading old data. */
+  frequency?: 'daily' | 'weekly' | 'once';
+  /** Done once by whichever assignee gets to it, instead of each assignee doing their own. */
+  shared?: boolean;
   value_cents: number;
   icon?: string; // emoji
 }
@@ -26,6 +49,8 @@ export interface ChoreCompletion {
   chore_id: string;
   member_id: string;
   completed_at: string; // ISO date string for serialization
+  /** The occurrence ("YYYY-MM-DD") this completion satisfies. Older completions lack it; their local completion day stands in. */
+  due_date?: string;
   verified_by?: string; // member ID of verifying parent
 }
 

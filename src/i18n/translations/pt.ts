@@ -98,6 +98,8 @@ export const pt: Record<TranslationKey, string> = {
   'taskChecklist.allDone': 'Tudo concluído — bom trabalho!',
   'taskChecklist.complete': 'Concluir {name}',
   'taskChecklist.undo': 'Anular {name}',
+  'taskChecklist.overdue': 'Atrasada',
+  'taskChecklist.whoDidIt': 'Quem fez?',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Tarefa',

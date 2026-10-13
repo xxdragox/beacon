@@ -1,6 +1,7 @@
+import type { ChoreOccurrence } from '../api/chore-schedule';
 import type { ComponentType } from 'react';
 import { CalendarEvent, WeatherData } from '../types';
-import { Chore, FamilyMember } from './family';
+import { FamilyMember } from './family';
 import { DayMenu } from './meals';
 import type { TaskmateUser } from './taskmate';
 
@@ -80,9 +81,12 @@ export interface DashboardCardContext {
   todoItems: TodoItem[];
   onToggleTodo?: (uid: string, currentStatus: string, listId?: string) => void;
   taskmateUsers: TaskmateUser[];
-  filteredChores: Chore[];
-  completedChoreIds: Set<string>;
-  onToggleChore: (choreId: string) => void;
+  /** Today's chore occurrences (plus overdue), already filtered to the selected member. */
+  choreItems: ChoreOccurrence[];
+  /** Today's date ("YYYY-MM-DD"). */
+  today: string;
+  /** Check off / undo a chore occurrence; `creditMemberId` = who did a shared/open chore. */
+  onToggleChoreItem: (item: ChoreOccurrence, creditMemberId?: string) => void;
 }
 
 export interface DashboardCardProps {

@@ -1,181 +1,53 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { Chore, FamilyMember, STAR_CURRENCY, formatChoreValue } from '../types/family';
-import { ChoreCard } from './ChoreCard';
-import { StreakBadge } from './StreakBadge';
+import { Plus } from 'lucide-react';
+import { Chore, ChoreSchedule, FamilyMember, STAR_CURRENCY } from '../types/family';
+import { ChoreOccurrence, scheduleOf } from '../api/chore-schedule';
+import { toggleOccurrence, useTodayKey } from '../hooks/useChoreDay';
+import { DayChoresView } from './chores/DayChoresView';
+import { ScheduleEditor, defaultSchedule } from './chores/ScheduleEditor';
+import { ManageChoresView } from './chores/ManageChoresView';
 import { useChores } from '../hooks/useChores';
 import { useFamily } from '../hooks/useFamily';
 import { useSettings } from '../hooks/useSettings';
 
 const CHORE_ICONS = ['🧹', '🍽️', '🐕', '🛏️', '📚', '🗑️', '👕', '🧺', '🪥', '🚿', '🧼', '💪'];
 
-const EMPTY_CHORE_FORM = {
+const emptyChoreForm = () => ({
   name: '',
   value_cents: 100,
-  frequency: 'daily' as Chore['frequency'],
+  schedule: defaultSchedule() as ChoreSchedule,
+  shared: false,
   assigned_to: [] as string[],
   icon: '🧹',
-};
+});
 
-interface UnassignedChoreCardProps {
-  chore: Chore;
-  members: FamilyMember[];
-  onClaim: (choreId: string, memberId: string) => void;
-  onComplete: (choreId: string, memberId: string) => void;
-  onEdit: () => void;
-  onDelete: () => void;
-  currencySymbol?: string;
-}
-
-function UnassignedChoreCard({
-  chore,
-  members,
-  onClaim,
-  onComplete,
-  onEdit,
-  onDelete,
-  currencySymbol = '$',
-}: UnassignedChoreCardProps) {
-  const [showMemberPicker, setShowMemberPicker] = useState(false);
-  const [pickerAction, setPickerAction] = useState<'claim' | 'complete'>('claim');
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
-  const handleMemberSelect = (memberId: string) => {
-    if (pickerAction === 'claim') {
-      onClaim(chore.id, memberId);
-    } else {
-      onComplete(chore.id, memberId);
-    }
-    setShowMemberPicker(false);
-  };
-
-  const handleDeleteClick = () => {
-    if (confirmDelete) {
-      onDelete();
-      setConfirmDelete(false);
-    } else {
-      setConfirmDelete(true);
-      setTimeout(() => setConfirmDelete(false), 3000);
-    }
-  };
-
-  const value = formatChoreValue(chore.value_cents, currencySymbol);
-
-  return (
-    <div className="unassigned-chore-card">
-      <div className="chore-card-body">
-        <span className="chore-card-name">
-          {chore.icon && <span className="chore-card-icon">{chore.icon}</span>}
-          {chore.name}
-        </span>
-        {value && <span className="chore-card-value">{value}</span>}
-      </div>
-
-      <div className="chore-card-actions">
-        <button
-          type="button"
-          className="btn btn--sm btn--secondary"
-          onClick={() => {
-            setPickerAction('claim');
-            setShowMemberPicker(true);
-          }}
-        >
-          Claim
-        </button>
-        <button
-          type="button"
-          className="btn btn--sm btn--primary"
-          onClick={() => {
-            setPickerAction('complete');
-            setShowMemberPicker(true);
-          }}
-        >
-          Complete
-        </button>
-        <button
-          type="button"
-          className="chore-card-action-btn"
-          onClick={onEdit}
-          aria-label={`Edit ${chore.name}`}
-        >
-          <Pencil size={15} />
-        </button>
-        <button
-          type="button"
-          className="chore-card-action-btn chore-card-action-btn--danger"
-          onClick={handleDeleteClick}
-          aria-label={`Delete ${chore.name}`}
-        >
-          {confirmDelete ? (
-            <span className="chore-card-action-confirm">Sure?</span>
-          ) : (
-            <Trash2 size={15} />
-          )}
-        </button>
-      </div>
-
-      {showMemberPicker && (
-        <div className="modal-overlay" onClick={() => setShowMemberPicker(false)}>
-          <div className="modal modal--sm" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">
-                {pickerAction === 'claim' ? 'Who claims this?' : 'Who completed this?'}
-              </h2>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={() => setShowMemberPicker(false)}
-              >
-                {'\u00D7'}
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="chores-assign-grid">
-                {members.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    className="chores-assign-btn"
-                    onClick={() => handleMemberSelect(m.id)}
-                    style={{ borderColor: m.color, backgroundColor: m.color + '15' }}
-                  >
-                    <span>{m.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+type ChoresTab = 'day' | 'manage';
 
 export function ChoresView() {
   const { members } = useFamily();
   const { settings } = useSettings();
   const {
     chores,
+    completions,
     addChore,
     updateChore,
     removeChore,
     completeChore,
     uncompleteChore,
-    isChoreCompletedToday,
     getStreakForMember,
-    getChoresForMember,
-    getMemberProgress,
   } = useChores();
+  const today = useTodayKey();
 
+  const [tab, setTab] = useState<ChoresTab>('day');
   const [showForm, setShowForm] = useState(false);
   const [editingChoreId, setEditingChoreId] = useState<string | null>(null);
-  const [newChore, setNewChore] = useState({ ...EMPTY_CHORE_FORM });
+  const [newChore, setNewChore] = useState(emptyChoreForm);
 
   const isEditing = editingChoreId !== null;
 
   const openAddForm = (presetMemberId?: string) => {
     setNewChore({
-      ...EMPTY_CHORE_FORM,
+      ...emptyChoreForm(),
       assigned_to: presetMemberId ? [presetMemberId] : [],
     });
     setEditingChoreId(null);
@@ -186,7 +58,8 @@ export function ChoresView() {
     setNewChore({
       name: chore.name,
       value_cents: chore.value_cents,
-      frequency: chore.frequency,
+      schedule: scheduleOf(chore),
+      shared: !!chore.shared,
       assigned_to: [...chore.assigned_to],
       icon: chore.icon || '🧹',
     });
@@ -197,28 +70,26 @@ export function ChoresView() {
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingChoreId(null);
-    setNewChore({ ...EMPTY_CHORE_FORM });
+    setNewChore(emptyChoreForm());
   };
 
   const handleSaveChore = () => {
     if (!newChore.name.trim()) return;
+    if (newChore.schedule.type === 'weekly' && newChore.schedule.days.length === 0) return;
 
+    const data = {
+      name: newChore.name.trim(),
+      value_cents: newChore.value_cents,
+      schedule: newChore.schedule,
+      // "Shared" only means something with two or more people assigned.
+      shared: newChore.assigned_to.length > 1 && newChore.shared,
+      assigned_to: newChore.assigned_to,
+      icon: newChore.icon,
+    };
     if (isEditing) {
-      updateChore(editingChoreId, {
-        name: newChore.name.trim(),
-        value_cents: newChore.value_cents,
-        frequency: newChore.frequency,
-        assigned_to: newChore.assigned_to,
-        icon: newChore.icon,
-      });
+      updateChore(editingChoreId, data);
     } else {
-      addChore({
-        name: newChore.name.trim(),
-        value_cents: newChore.value_cents,
-        frequency: newChore.frequency,
-        assigned_to: newChore.assigned_to,
-        icon: newChore.icon,
-      });
+      addChore(data);
     }
 
     handleCloseForm();
@@ -240,31 +111,29 @@ export function ChoresView() {
     }));
   };
 
-  const memberChoreGroups = members.map((member) => ({
-    member,
-    chores: getChoresForMember(member.id),
-    progress: getMemberProgress(member.id),
-    streak: getStreakForMember(member.id),
-  }));
-
-  const unassignedChores = chores.filter((c) => c.assigned_to.length === 0);
-
-  const handleClaimChore = (choreId: string, memberId: string) => {
-    const chore = chores.find((c) => c.id === choreId);
-    if (!chore) return;
-    updateChore(choreId, {
-      assigned_to: [...chore.assigned_to, memberId],
-    });
-  };
-
-  const handleCompleteUnassigned = (choreId: string, memberId: string) => {
-    completeChore(choreId, memberId);
-  };
+  const handleToggle = (item: ChoreOccurrence, creditMemberId?: string) =>
+    toggleOccurrence(item, today, completeChore, uncompleteChore, creditMemberId);
 
   return (
     <div className="chores-view">
       <header className="chores-view-header">
         <h1 className="chores-view-title">Chores</h1>
+        {members.length > 0 && (
+          <div className="settings-segment chores-tabs" role="tablist">
+            {([['day', 'Day'], ['manage', 'Manage']] as const).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={tab === id}
+                className={`settings-segment-btn ${tab === id ? 'settings-segment-btn--active' : ''}`}
+                onClick={() => setTab(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
         {members.length > 0 && (
           <button
             type="button"
@@ -281,92 +150,26 @@ export function ChoresView() {
         <div className="chores-empty">
           Add family members first to assign chores.
         </div>
+      ) : tab === 'manage' ? (
+        <ManageChoresView
+          chores={chores}
+          members={members}
+          currencySymbol={settings.currencySymbol}
+          onAdd={() => openAddForm()}
+          onEdit={handleStartEdit}
+          onDelete={handleDeleteChore}
+        />
       ) : (
-        <>
-          {unassignedChores.length > 0 && (
-            <section className="chores-unassigned-section">
-              <h2 className="chores-section-title">Open Chores</h2>
-              <div className="chores-unassigned-list">
-                {unassignedChores.map((chore) => (
-                  <UnassignedChoreCard
-                    key={chore.id}
-                    chore={chore}
-                    members={members}
-                    onClaim={handleClaimChore}
-                    onComplete={handleCompleteUnassigned}
-                    onEdit={() => handleStartEdit(chore)}
-                    onDelete={() => handleDeleteChore(chore.id)}
-                    currencySymbol={settings.currencySymbol}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          <div
-            className="chores-family-grid"
-            style={{ '--member-count': members.length } as React.CSSProperties}
-          >
-          {memberChoreGroups.map(({ member, chores: memberChores, progress, streak }) => (
-            <section key={member.id} className="chores-member-col">
-              <div className="dash-member-header">
-                <span className="dash-member-name" style={{ color: member.color }}>
-                  {member.name}
-                </span>
-                <StreakBadge streak={streak} size="sm" />
-              </div>
-
-              {memberChores.length > 0 && (
-                <div className="chores-progress">
-                  <div className="chores-progress-bar">
-                    <div
-                      className="chores-progress-fill"
-                      style={{
-                        width: `${progress.total > 0 ? (progress.completed / progress.total) * 100 : 0}%`,
-                        backgroundColor: member.color,
-                      }}
-                    />
-                  </div>
-                  <span className="chores-progress-text">
-                    {progress.completed}/{progress.total}
-                  </span>
-                </div>
-              )}
-
-              <div className="chores-member-col-list">
-                {memberChores.length === 0 ? (
-                  <div className="chores-member-empty">No chores assigned</div>
-                ) : (
-                  <div className="chores-list">
-                    {memberChores.map((chore) => (
-                      <ChoreCard
-                        key={`${chore.id}-${member.id}`}
-                        chore={chore}
-                        member={member}
-                        isCompleted={isChoreCompletedToday(chore.id, member.id)}
-                        onComplete={() => completeChore(chore.id, member.id)}
-                        onUncomplete={() => uncompleteChore(chore.id, member.id)}
-                        onEdit={() => handleStartEdit(chore)}
-                        onDelete={() => handleDeleteChore(chore.id)}
-                        currencySymbol={settings.currencySymbol}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="button"
-                className="chores-member-add-btn"
-                onClick={() => openAddForm(member.id)}
-              >
-                <Plus size={14} strokeWidth={2} />
-                Add chore for {member.name}
-              </button>
-            </section>
-          ))}
-        </div>
-        </>
+        <DayChoresView
+          chores={chores}
+          completions={completions}
+          members={members}
+          today={today}
+          currencySymbol={settings.currencySymbol}
+          getStreakForMember={getStreakForMember}
+          onToggle={handleToggle}
+          onAdd={openAddForm}
+        />
       )}
 
       {showForm && (
@@ -439,18 +242,11 @@ export function ChoresView() {
               </div>
 
               <div className="form-field">
-                <label className="form-label">Frequency</label>
-                <select
-                  className="form-select"
-                  value={newChore.frequency}
-                  onChange={(e) =>
-                    setNewChore((f) => ({ ...f, frequency: e.target.value as Chore['frequency'] }))
-                  }
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="once">One-time</option>
-                </select>
+                <label className="form-label">Schedule</label>
+                <ScheduleEditor
+                  value={newChore.schedule}
+                  onChange={(schedule) => setNewChore((f) => ({ ...f, schedule }))}
+                />
               </div>
 
               <div className="form-field">
@@ -472,6 +268,21 @@ export function ChoresView() {
                     </button>
                   ))}
                 </div>
+                {newChore.assigned_to.length > 1 && (
+                  <label className="chores-shared-toggle">
+                    <input
+                      type="checkbox"
+                      checked={newChore.shared}
+                      onChange={(e) => setNewChore((f) => ({ ...f, shared: e.target.checked }))}
+                    />
+                    <span>
+                      <strong>Shared</strong> — done once by whoever gets to it
+                      <span className="chores-shared-hint">
+                        {newChore.shared ? '' : 'Otherwise each person does their own.'}
+                      </span>
+                    </span>
+                  </label>
+                )}
               </div>
             </div>
 
@@ -493,7 +304,7 @@ export function ChoresView() {
                   type="button"
                   className="btn btn--primary"
                   onClick={handleSaveChore}
-                  disabled={!newChore.name.trim()}
+                  disabled={!newChore.name.trim() || (newChore.schedule.type === 'weekly' && newChore.schedule.days.length === 0)}
                 >
                   {isEditing ? 'Save Changes' : 'Add Chore'}
                 </button>

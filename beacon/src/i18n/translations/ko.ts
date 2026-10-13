@@ -98,6 +98,8 @@ export const ko: Record<TranslationKey, string> = {
   'taskChecklist.allDone': '모두 완료했어요, 잘했어요!',
   'taskChecklist.complete': '{name} 완료',
   'taskChecklist.undo': '{name} 취소',
+  'taskChecklist.overdue': '기한 지남',
+  'taskChecklist.whoDidIt': '누가 했나요?',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': '집안일',
