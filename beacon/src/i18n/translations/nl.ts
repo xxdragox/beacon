@@ -100,6 +100,9 @@ export const nl: Record<TranslationKey, string> = {
   'taskChecklist.undo': '{name} ongedaan maken',
   'taskChecklist.overdue': 'Te laat',
   'taskChecklist.whoDidIt': 'Wie heeft het gedaan?',
+  'calendarFilter.label': 'Agenda\'s',
+  'calendarFilter.showAll': 'Alles tonen',
+  'calendarFilter.hideAll': 'Alles verbergen',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Klusje',

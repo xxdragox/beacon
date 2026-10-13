@@ -100,6 +100,9 @@ export const it: Record<TranslationKey, string> = {
   'taskChecklist.undo': 'Annulla {name}',
   'taskChecklist.overdue': 'In ritardo',
   'taskChecklist.whoDidIt': 'Chi l\'ha fatto?',
+  'calendarFilter.label': 'Calendari',
+  'calendarFilter.showAll': 'Mostra tutti',
+  'calendarFilter.hideAll': 'Nascondi tutti',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Faccenda',

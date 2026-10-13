@@ -1,3 +1,9 @@
+# [1.38.0-mc7.10](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon):
+
+* the Calendar tab's row of calendar pills is replaced by a "Calendars ▾" menu in the calendar toolbar: every calendar with its color and a checkbox (hidden ones included, so they can be turned back on — the pills dropped hidden calendars entirely), plus Show all / Hide all. Same saved setting as before
+
 # [1.38.0-mc7.9](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon):

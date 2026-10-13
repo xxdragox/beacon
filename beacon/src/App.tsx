@@ -11,7 +11,7 @@ import { Clock } from './components/Clock';
 import { WeekCalendar } from './components/WeekCalendar';
 import { DashboardView } from './components/DashboardView';
 import { EventModal, EventFormData } from './components/EventModal';
-import { FamilyFilter } from './components/FamilyFilter';
+import { CalendarFilterMenu } from './components/CalendarFilterMenu';
 import { SettingsView } from './components/SettingsView';
 import { useSettings } from './hooks/useSettings';
 import { ChoresView } from './components/ChoresView';
@@ -269,6 +269,12 @@ export function App() {
       updateSettings({ permanentlyHiddenCalendars: Array.from(next) });
       return next;
     });
+  }, [updateSettings]);
+
+  /** Show all / Hide all from the calendar filter menu (persisted like single toggles). */
+  const handleSetHiddenCalendars = useCallback((calendarIds: string[]) => {
+    setHiddenCalendars(new Set(calendarIds));
+    updateSettings({ permanentlyHiddenCalendars: calendarIds });
   }, [updateSettings]);
 
   const handleEventClick = useCallback((event: CalendarEvent) => {
@@ -682,15 +688,6 @@ export function App() {
               </div>
             </header>
 
-            {/* Family filter pills — above the calendar */}
-            <div className="filter-bar">
-              <FamilyFilter
-                calendars={calendars}
-                hiddenCalendars={hiddenCalendars}
-                onToggle={handleToggleCalendar}
-              />
-            </div>
-
             {/* Calendar Body (fork: no task sidebar — chores live on the Chores page and dashboard) */}
             <div className="beacon-body beacon-body--two-col">
               <div className="beacon-body-calendar">
@@ -702,6 +699,14 @@ export function App() {
                   onEventReschedule={handleEventReschedule}
                   onVisibleWeekChange={setVisibleWeekStart}
                   weekStartsOn={settings.weekStartsOn}
+                  toolbarExtra={
+                    <CalendarFilterMenu
+                      calendars={calendars}
+                      hiddenCalendars={hiddenCalendars}
+                      onToggle={handleToggleCalendar}
+                      onSetHidden={handleSetHiddenCalendars}
+                    />
+                  }
                 />
               </div>
             </div>

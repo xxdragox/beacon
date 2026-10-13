@@ -105,6 +105,9 @@ export const en = {
   'taskChecklist.undo': 'Undo {name}',
   'taskChecklist.overdue': 'Overdue',
   'taskChecklist.whoDidIt': 'Who did it?',
+  'calendarFilter.label': 'Calendars',
+  'calendarFilter.showAll': 'Show all',
+  'calendarFilter.hideAll': 'Hide all',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Chore',

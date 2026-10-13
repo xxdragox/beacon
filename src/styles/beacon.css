@@ -2129,3 +2129,100 @@ a:focus:not(:focus-visible) {
     scroll-behavior: auto !important;
   }
 }
+
+/* ─── Calendar filter menu (fork: replaces the pill row) ─── */
+.cal-filter-menu {
+  position: relative;
+}
+
+.cal-filter-trigger {
+  gap: 6px;
+  font-weight: 500;
+}
+
+.cal-filter-trigger--open {
+  background: var(--bg-hover);
+  border-color: var(--border);
+}
+
+.cal-filter-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-filter-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 220px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.cal-filter-list {
+  list-style: none;
+}
+
+.cal-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.cal-filter-item:hover {
+  background: var(--bg-hover);
+}
+
+.cal-filter-item input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.cal-filter-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cal-filter-name {
+  flex: 1;
+}
+
+.cal-filter-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 6px 2px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cal-filter-action {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.cal-filter-action:hover {
+  background: var(--bg-hover);
+}

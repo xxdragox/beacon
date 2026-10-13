@@ -100,6 +100,9 @@ export const es: Record<TranslationKey, string> = {
   'taskChecklist.undo': 'Deshacer {name}',
   'taskChecklist.overdue': 'Atrasada',
   'taskChecklist.whoDidIt': '¿Quién lo hizo?',
+  'calendarFilter.label': 'Calendarios',
+  'calendarFilter.showAll': 'Mostrar todos',
+  'calendarFilter.hideAll': 'Ocultar todos',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': 'Tarea',

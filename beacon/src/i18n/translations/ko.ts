@@ -100,6 +100,9 @@ export const ko: Record<TranslationKey, string> = {
   'taskChecklist.undo': '{name} 취소',
   'taskChecklist.overdue': '기한 지남',
   'taskChecklist.whoDidIt': '누가 했나요?',
+  'calendarFilter.label': '캘린더',
+  'calendarFilter.showAll': '모두 표시',
+  'calendarFilter.hideAll': '모두 숨기기',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': '집안일',

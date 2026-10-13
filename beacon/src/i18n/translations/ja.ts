@@ -100,6 +100,9 @@ export const ja: Record<TranslationKey, string> = {
   'taskChecklist.undo': '{name}を元に戻す',
   'taskChecklist.overdue': '期限切れ',
   'taskChecklist.whoDidIt': '誰がやった？',
+  'calendarFilter.label': 'カレンダー',
+  'calendarFilter.showAll': 'すべて表示',
+  'calendarFilter.hideAll': 'すべて非表示',
 
   // ---- omni add (FAB) ----
   'omniAdd.chore': '家事',

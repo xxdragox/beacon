@@ -26,6 +26,8 @@ interface WeekCalendarProps {
   onEventReschedule?: (event: CalendarEvent, newDate: string, newHour: number) => void;
   onVisibleWeekChange?: (weekStart: Date) => void;
   weekStartsOn: 0 | 1;
+  /** Extra controls at the start of the toolbar's right side (e.g. the calendar filter menu). */
+  toolbarExtra?: React.ReactNode;
 }
 
 const START_HOUR = 7;
@@ -69,7 +71,7 @@ interface MultiDaySpan {
   lane: number;
 }
 
-export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClick, onEventReschedule, onVisibleWeekChange, weekStartsOn }: WeekCalendarProps) {
+export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClick, onEventReschedule, onVisibleWeekChange, weekStartsOn, toolbarExtra }: WeekCalendarProps) {
   const today = new Date();
   const todayWeekStart = startOfWeek(today, { weekStartsOn });
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -449,6 +451,7 @@ export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClic
         </div>
         <div className="week-nav-label">{weekLabel}</div>
         <div className="week-nav-jump">
+          {toolbarExtra}
           <button
             type="button"
             className="week-nav-jump-btn"
