@@ -4,6 +4,7 @@ import { ChoreOccurrence, canToggle } from '../api/chore-schedule';
 import { occurrenceKey } from '../hooks/useChoreDay';
 import { hapticMedium, hapticSuccess } from '../hooks/useHaptics';
 import { useTranslation } from '../i18n';
+import { ChoreIcon } from './chores/choreIcons';
 
 interface TaskChecklistProps {
   /** Chore occurrences to show (today's plus overdue). */
@@ -107,7 +108,7 @@ export function TaskChecklist({ items, today, onToggle, members = [], creditMemb
           </span>
         </button>
         <span className={`task-checklist-label ${done ? 'task-checklist-label--done' : ''}`}>
-          {item.chore.icon && <span className="task-checklist-icon">{item.chore.icon}</span>}
+          <ChoreIcon icon={item.chore.icon} className="task-checklist-icon" />
           <span className="task-checklist-name" title={name}>{name}</span>
           {item.state === 'overdue' && <span className="task-checklist-overdue">{t('taskChecklist.overdue')}</span>}
         </span>

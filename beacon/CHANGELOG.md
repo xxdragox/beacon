@@ -1,3 +1,9 @@
+# [1.38.0-mc7.12](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon):
+
+* 40 chore pictures (make bed, take out trash, vacuum floors, feed pets, …) for chore icons, shown everywhere chores appear (Chores Day/Week/Month/Manage, dashboard checklist, Focus view). The chore form's icon picker lists the pictures above the emoji, and picks a matching picture as you type the chore name until you choose one yourself. Stored as `pic:<name>`; emoji icons still work
+
 # [1.38.0-mc7.11](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon):

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Chore, FamilyMember, formatChoreValue } from '../types/family';
+import { ChoreIcon } from './chores/choreIcons';
 
 interface ChoreCardProps {
   chore: Chore;
@@ -95,7 +96,7 @@ export function ChoreCard({
 
       <div className="chore-card-body">
         <span className={`chore-card-name ${isCompleted ? 'chore-card-name--done' : ''}`}>
-          {chore.icon && <span className="chore-card-icon">{chore.icon}</span>}
+          <ChoreIcon icon={chore.icon} className="chore-card-icon" />
           {chore.name}
         </span>
         {note && <span className={`chore-card-note chore-card-note--${noteTone}`}>{note}</span>}

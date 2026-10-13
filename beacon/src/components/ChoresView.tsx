@@ -8,6 +8,7 @@ import { WeekChoresView } from './chores/WeekChoresView';
 import { MonthChoresView } from './chores/MonthChoresView';
 import { ScheduleEditor, defaultSchedule } from './chores/ScheduleEditor';
 import { ManageChoresView } from './chores/ManageChoresView';
+import { CHORE_PICTURES, PICTURE_PREFIX, suggestPicture } from './chores/choreIcons';
 import { useChores } from '../hooks/useChores';
 import { useFamily } from '../hooks/useFamily';
 import { useSettings } from '../hooks/useSettings';
@@ -52,6 +53,18 @@ export function ChoresView() {
   const [showForm, setShowForm] = useState(false);
   const [editingChoreId, setEditingChoreId] = useState<string | null>(null);
   const [newChore, setNewChore] = useState(emptyChoreForm);
+  /** Once an icon is picked by hand, typing the name no longer changes it. */
+  const [iconTouched, setIconTouched] = useState(false);
+  const pickIcon = (icon: string) => {
+    setIconTouched(true);
+    setNewChore((f) => ({ ...f, icon }));
+  };
+  const setName = (name: string) =>
+    setNewChore((f) => {
+      if (iconTouched) return { ...f, name };
+      const picture = suggestPicture(name);
+      return { ...f, name, icon: picture ? PICTURE_PREFIX + picture.id : '🧹' };
+    });
 
   const isEditing = editingChoreId !== null;
 
@@ -61,6 +74,7 @@ export function ChoresView() {
       assigned_to: presetMemberId ? [presetMemberId] : [],
     });
     setEditingChoreId(null);
+    setIconTouched(false);
     setShowForm(true);
   };
 
@@ -74,6 +88,7 @@ export function ChoresView() {
       icon: chore.icon || '🧹',
     });
     setEditingChoreId(chore.id);
+    setIconTouched(true);
     setShowForm(true);
   };
 
@@ -242,16 +257,47 @@ export function ChoresView() {
             </div>
 
             <div className="modal-body chores-add-form">
-              {/* Icon picker */}
+              <div className="form-field">
+                <label className="form-label">Name</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={newChore.name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g., Vacuum living room"
+                  autoFocus
+                />
+              </div>
+
+              {/* Icon picker: bundled chore pictures, then emoji */}
               <div className="form-field">
                 <label className="form-label">Icon</label>
-                <div className="fm-avatar-grid">
+                <div className="chore-pic-grid" role="radiogroup" aria-label="Pictures">
+                  {CHORE_PICTURES.map((p) => {
+                    const value = PICTURE_PREFIX + p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={newChore.icon === value}
+                        className={`chore-pic-option ${newChore.icon === value ? 'chore-pic-option--selected' : ''}`}
+                        onClick={() => pickIcon(value)}
+                        title={p.label}
+                        aria-label={p.label}
+                      >
+                        <img src={p.url} alt="" draggable={false} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="fm-avatar-grid chore-emoji-row" role="radiogroup" aria-label="Emoji">
                   {CHORE_ICONS.map((icon) => (
                     <button
                       key={icon}
                       type="button"
                       className={`fm-avatar-option ${newChore.icon === icon ? 'fm-avatar-option--selected' : ''}`}
-                      onClick={() => setNewChore((f) => ({ ...f, icon }))}
+                      onClick={() => pickIcon(icon)}
                     >
                       {icon}
                     </button>
@@ -259,17 +305,6 @@ export function ChoresView() {
                 </div>
               </div>
 
-              <div className="form-field">
-                <label className="form-label">Name</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={newChore.name}
-                  onChange={(e) => setNewChore((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g., Vacuum living room"
-                  autoFocus
-                />
-              </div>
 
               <div className="form-field">
                 <label className="form-label">Value</label>

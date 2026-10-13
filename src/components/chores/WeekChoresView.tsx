@@ -10,6 +10,7 @@ import {
   weekdayOf,
 } from '../../api/chore-schedule';
 import { occurrenceIsFor } from '../../hooks/useChoreDay';
+import { ChoreIcon } from './choreIcons';
 
 const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -187,7 +188,7 @@ export function WeekChoresView({ chores, completions, members, today, weekStarts
                   rows.map((row) => (
                     <div key={row.chore.id} className="chores-week-row">
                       <span className="chores-week-name">
-                        {row.chore.icon && <span className="chores-week-icon">{row.chore.icon}</span>}
+                        <ChoreIcon icon={row.chore.icon} className="chores-week-icon" />
                         {row.chore.name}
                       </span>
                       <RowPills row={row} members={members} today={today} memberFilter={memberFilter} onToggle={onToggle} />

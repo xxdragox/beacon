@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import { Chore, FamilyMember, formatChoreValue } from '../../types/family';
 import { CHORE_GROUP_ORDER, ChoreGroup, choreGroup, describeSchedule, isSharedChore, scheduleOf } from '../../api/chore-schedule';
+import { ChoreIcon } from './choreIcons';
 
 const GROUP_TITLES: Record<ChoreGroup, string> = {
   daily: 'Daily',
@@ -74,7 +75,7 @@ export function ManageChoresView({ chores, members, currencySymbol, onAdd, onEdi
               const assignees = chore.assigned_to.map((id) => memberById.get(id)).filter(Boolean) as FamilyMember[];
               return (
                 <li key={chore.id} className="chores-manage-row">
-                  <span className="chores-manage-icon" aria-hidden="true">{chore.icon || '🧹'}</span>
+                  <span className="chores-manage-icon"><ChoreIcon icon={chore.icon || '🧹'} /></span>
                   <div className="chores-manage-info">
                     <span className="chores-manage-name">{chore.name}</span>
                     <span className="chores-manage-schedule">{describeSchedule(scheduleOf(chore))}</span>

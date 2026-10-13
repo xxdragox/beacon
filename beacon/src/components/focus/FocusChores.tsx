@@ -3,6 +3,7 @@ import { formatChoreValue } from '../../types/family';
 import { ChoreOccurrence, canToggle } from '../../api/chore-schedule';
 import { occurrenceKey } from '../../hooks/useChoreDay';
 import { hapticMedium, hapticSuccess } from '../../hooks/useHaptics';
+import { ChoreIcon } from '../chores/choreIcons';
 
 interface FocusChoresProps {
   /** This person's chore occurrences due today, plus overdue. */
@@ -60,7 +61,7 @@ export function FocusChores({ items, today, currencySymbol, onToggle }: FocusCho
                   )}
                 </span>
                 <span className="focus-check-label">
-                  {chore.icon && <span className="focus-check-icon">{chore.icon}</span>}
+                  <ChoreIcon icon={chore.icon} className="focus-check-icon" />
                   {chore.name}
                   {item.state === 'overdue' && <span className="task-checklist-overdue">Overdue</span>}
                 </span>

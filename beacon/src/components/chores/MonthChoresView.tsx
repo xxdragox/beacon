@@ -3,6 +3,7 @@ import { Chore, ChoreCompletion, FamilyMember } from '../../types/family';
 import { ChoreOccurrence, addDays, addMonths, choreGroup, occurrencesForDay, occurrencesInRange, weekdayOf } from '../../api/chore-schedule';
 import { occurrenceIsFor } from '../../hooks/useChoreDay';
 import { weekStartFor } from './WeekChoresView';
+import { ChoreIcon } from './choreIcons';
 
 const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -112,7 +113,7 @@ export function MonthChoresView({ chores, completions, members, today, weekStart
               {shown.map((line) => (
                 <span key={line.chore.id} className="chores-month-line">
                   <span className="chores-month-name">
-                    {line.chore.icon && <span className="chores-month-icon">{line.chore.icon}</span>}
+                    <ChoreIcon icon={line.chore.icon} className="chores-month-icon" />
                     {line.chore.name}
                   </span>
                   <span className="chores-month-dots">
