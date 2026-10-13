@@ -1361,3 +1361,31 @@
   padding-left: 0;
   padding-top: 0;
 }
+
+/* ─── Header band ───
+   The clock/date/weather header sits in a panel tinted with the theme's
+   accent color, so it reads as the page header above the card panels. */
+.dash-topbar {
+  padding: 14px 24px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  border-radius: var(--radius-lg);
+}
+
+/* Weather is part of the band rather than its own bubble. */
+.dash-topbar .dash-topbar-weather {
+  background: transparent;
+  box-shadow: none;
+  padding: 6px 4px;
+}
+
+.dash-topbar .dash-topbar-weather--clickable:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: none;
+  transform: none;
+}
+
+.dash-topbar .dash-day-nav-btn {
+  background: var(--bg-surface);
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--border));
+}

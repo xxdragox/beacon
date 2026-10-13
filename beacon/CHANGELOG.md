@@ -1,3 +1,9 @@
+# [1.38.0-mc7.5](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon):
+
+* the clock/date/weather header sits in a band tinted with the theme's accent color, with the weather built in rather than in its own bubble
+
 # [1.38.0-mc7.4](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon):
