@@ -103,6 +103,8 @@ export const nl: Record<TranslationKey, string> = {
   'calendarFilter.label': 'Agenda\'s',
   'calendarFilter.showAll': 'Alles tonen',
   'calendarFilter.hideAll': 'Alles verbergen',
+  'calendarFilter.showKey': 'Kleurlegenda tonen',
+  'calendarLegend.hide': 'Kleurlegenda verbergen',
   'monthCalendar.previousMonth': 'Vorige maand',
   'monthCalendar.nextMonth': 'Volgende maand',
   'monthCalendar.more': '+{count} meer',

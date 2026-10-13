@@ -103,6 +103,8 @@ export const es: Record<TranslationKey, string> = {
   'calendarFilter.label': 'Calendarios',
   'calendarFilter.showAll': 'Mostrar todos',
   'calendarFilter.hideAll': 'Ocultar todos',
+  'calendarFilter.showKey': 'Mostrar leyenda de colores',
+  'calendarLegend.hide': 'Ocultar leyenda de colores',
   'monthCalendar.previousMonth': 'Mes anterior',
   'monthCalendar.nextMonth': 'Mes siguiente',
   'monthCalendar.more': '+{count} más',

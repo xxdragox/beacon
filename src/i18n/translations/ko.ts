@@ -103,6 +103,8 @@ export const ko: Record<TranslationKey, string> = {
   'calendarFilter.label': '캘린더',
   'calendarFilter.showAll': '모두 표시',
   'calendarFilter.hideAll': '모두 숨기기',
+  'calendarFilter.showKey': '색상 범례 표시',
+  'calendarLegend.hide': '색상 범례 숨기기',
   'monthCalendar.previousMonth': '이전 달',
   'monthCalendar.nextMonth': '다음 달',
   'monthCalendar.more': '+{count}개 더',

@@ -13,6 +13,7 @@ import { DashboardView } from './components/DashboardView';
 import { EventModal, EventFormData } from './components/EventModal';
 import { CalendarFilterMenu } from './components/CalendarFilterMenu';
 import { MonthCalendar } from './components/MonthCalendar';
+import { CalendarLegend } from './components/CalendarLegend';
 import { SettingsView } from './components/SettingsView';
 import { useSettings } from './hooks/useSettings';
 import { ChoresView } from './components/ChoresView';
@@ -219,6 +220,14 @@ export function App() {
   const changeCalendarView = useCallback((view: 'week' | 'month') => {
     setCalendarView(view);
     try { localStorage.setItem('beacon-calendar-view', view); } catch { /* storage unavailable */ }
+  }, []);
+  /** Calendar color key above the calendar, shown unless hidden on this screen. */
+  const [legendVisible, setLegendVisible] = useState(() => {
+    try { return localStorage.getItem('beacon-calendar-legend') !== 'hidden'; } catch { return true; }
+  });
+  const changeLegendVisible = useCallback((visible: boolean) => {
+    setLegendVisible(visible);
+    try { localStorage.setItem('beacon-calendar-legend', visible ? 'shown' : 'hidden'); } catch { /* storage unavailable */ }
   }, []);
   /** Week to open when jumping from a month-view day into the week view. */
   const [weekViewStart, setWeekViewStart] = useState<Date | null>(null);
@@ -706,6 +715,16 @@ export function App() {
               </div>
             </header>
 
+            {legendVisible && (
+              <CalendarLegend
+                calendars={calendars}
+                members={members}
+                calendarColors={settings.calendarColors}
+                hiddenCalendars={hiddenCalendars}
+                onHide={() => changeLegendVisible(false)}
+              />
+            )}
+
             {/* Calendar Body (fork: no task sidebar — chores live on the Chores page and dashboard) */}
             <div className="beacon-body beacon-body--two-col">
               <div className="beacon-body-calendar">
@@ -734,6 +753,8 @@ export function App() {
                         hiddenCalendars={hiddenCalendars}
                         onToggle={handleToggleCalendar}
                         onSetHidden={handleSetHiddenCalendars}
+                        legendVisible={legendVisible}
+                        onLegendVisibleChange={changeLegendVisible}
                       />
                     </>
                   );

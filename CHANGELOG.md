@@ -1,3 +1,9 @@
+# [1.38.0-mc7.13](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon):
+
+* Calendar page color key: a tile per family member (pastel tile, colored initial, name) above the calendar in week and month views, listing exactly the members whose color is on screen — a calendar takes the color of the first member it's linked to, so linked calendars like SES or a shared Family calendar fold under that member. Hide it with ✕; bring it back with "Show color key" in the Calendars menu (remembered per screen)
+
 # [1.38.0-mc7.12](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon):

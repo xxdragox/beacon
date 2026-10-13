@@ -103,6 +103,8 @@ export const ja: Record<TranslationKey, string> = {
   'calendarFilter.label': 'カレンダー',
   'calendarFilter.showAll': 'すべて表示',
   'calendarFilter.hideAll': 'すべて非表示',
+  'calendarFilter.showKey': '色の凡例を表示',
+  'calendarLegend.hide': '色の凡例を隠す',
   'monthCalendar.previousMonth': '前の月',
   'monthCalendar.nextMonth': '次の月',
   'monthCalendar.more': '他{count}件',

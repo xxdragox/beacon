@@ -8,6 +8,9 @@ interface CalendarFilterMenuProps {
   onToggle: (calendarId: string) => void;
   /** Replace the whole hidden set (Show all / Hide all). */
   onSetHidden: (calendarIds: string[]) => void;
+  /** The color key above the calendar. */
+  legendVisible?: boolean;
+  onLegendVisibleChange?: (visible: boolean) => void;
 }
 
 /**
@@ -15,7 +18,7 @@ interface CalendarFilterMenuProps {
  * color and a checkbox (hidden ones included, so they can be turned back on),
  * plus Show all / Hide all.
  */
-export function CalendarFilterMenu({ calendars, hiddenCalendars, onToggle, onSetHidden }: CalendarFilterMenuProps) {
+export function CalendarFilterMenu({ calendars, hiddenCalendars, onToggle, onSetHidden, legendVisible, onLegendVisibleChange }: CalendarFilterMenuProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -74,6 +77,12 @@ export function CalendarFilterMenu({ calendars, hiddenCalendars, onToggle, onSet
               {t('calendarFilter.hideAll')}
             </button>
           </div>
+          {onLegendVisibleChange && (
+            <label className="cal-filter-item cal-filter-legend-toggle">
+              <input type="checkbox" checked={!!legendVisible} onChange={(e) => onLegendVisibleChange(e.target.checked)} />
+              <span className="cal-filter-name">{t('calendarFilter.showKey')}</span>
+            </label>
+          )}
         </div>
       )}
     </div>

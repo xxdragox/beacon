@@ -108,6 +108,8 @@ export const en = {
   'calendarFilter.label': 'Calendars',
   'calendarFilter.showAll': 'Show all',
   'calendarFilter.hideAll': 'Hide all',
+  'calendarFilter.showKey': 'Show color key',
+  'calendarLegend.hide': 'Hide color key',
   'monthCalendar.previousMonth': 'Previous month',
   'monthCalendar.nextMonth': 'Next month',
   'monthCalendar.more': '+{count} more',
