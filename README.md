@@ -32,6 +32,7 @@
 > - Customizable dashboard fills gaps, reflows on narrow and portrait screens, hides regions with nothing to show, and puts cards in bordered panels like the Settings page under an accent-tinted header band.
 > - Meal plans come from [Mealie](https://mealie.io) via Home Assistant's Mealie integration, with a new "Week Menu" card.
 > - Chores have real schedules (weekdays, every N weeks/months, quarterly, after last done, one time), shared chores, overdue tracking, and Day/Week/Month/Manage views with a person filter.
+> - The Calendar tab has no task sidebar; the calendar uses the full width.
 > - Events on iCloud calendars can be edited and deleted (HA's CalDAV integration only creates them): set `icloud_username` and an Apple app-specific password in the add-on configuration.
 > Add this fork to Home Assistant with the repository URL `https://github.com/xxdragox/beacon`.
 

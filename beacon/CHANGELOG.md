@@ -1,3 +1,9 @@
+# [1.38.0-mc7.9](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon):
+
+* remove the Calendar tab's sidebar (today's events + task list); the calendar uses the full width. Chores live on the Chores page and the dashboard
+
 # [1.38.0-mc7.8](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon), scheduled chores (part 3):

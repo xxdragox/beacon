@@ -25,7 +25,6 @@ import { useNotifications } from './hooks/useNotifications';
 import { ScreenSaver } from './components/ScreenSaver';
 import { GroceryView } from './components/GroceryView';
 import { OmniAdd } from './components/OmniAdd';
-import { CalendarSidebar } from './components/CalendarSidebar';
 import { Timer } from './components/Timer';
 import { WeatherView } from './components/WeatherView';
 import { useIngressDetect } from './hooks/useIngressDetect';
@@ -692,7 +691,7 @@ export function App() {
               />
             </div>
 
-            {/* Calendar Body — two-column on desktop */}
+            {/* Calendar Body (fork: no task sidebar — chores live on the Chores page and dashboard) */}
             <div className="beacon-body beacon-body--two-col">
               <div className="beacon-body-calendar">
                 <WeekCalendar
@@ -705,15 +704,6 @@ export function App() {
                   weekStartsOn={settings.weekStartsOn}
                 />
               </div>
-              <CalendarSidebar
-                events={visibleEvents}
-                choreItems={choreItems}
-                today={todayKey}
-                onToggleChoreItem={handleToggleChoreItem}
-                todoItems={dashboardTasks.items}
-                onToggleTodo={dashboardTasks.toggleItem}
-                members={members}
-              />
             </div>
 
             {/* Omni-Add FAB */}
