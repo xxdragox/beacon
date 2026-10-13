@@ -1,3 +1,10 @@
+# [1.38.0-mc7.4](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon):
+
+* dashboard cards in the main area and sidebar sit in bordered panels, matching the Settings page's groups, in every theme; the clock stays unboxed as the header
+* cards with nothing to show (e.g. Menu with no meals today) stay invisible outside edit mode, and the sidebar's divider line is gone since the panels separate it
+
 # [1.38.0-mc7.3](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-10)
 
 Fork changes (xxdragox/beacon), editing iCloud calendar events:

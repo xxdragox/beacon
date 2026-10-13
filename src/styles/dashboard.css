@@ -1317,3 +1317,47 @@
     overflow: visible;
   }
 }
+
+/* ─── Card panels ───
+   Dashboard cards in the main area and sidebar sit in bordered panels, the
+   same look as the Settings page groups (.settings-group). The topbar clock
+   stays unboxed as the page header. */
+.dash-main .grid-stack-item-content,
+.dash-sidebar .grid-stack-item-content,
+.dash-classic-sidebar .grid-stack-item-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.dash-main .dash-gridstack-item-inner,
+.dash-sidebar .dash-gridstack-item-inner,
+.dash-classic-sidebar .dash-gridstack-item-inner {
+  padding: 16px;
+}
+
+/* A card with nothing to show (e.g. Menu with no meals today) stays
+   invisible instead of leaving an empty panel; edit mode still shows it. */
+.grid-stack-item-content:not(:has(.dash-gridstack-item-inner > *)) {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Rows inside a panel use the page background, like the theme tiles inside
+   the Settings panels, so they don't vanish into the panel. */
+.grid-stack-item-content .dash-menu-item,
+.grid-stack-item-content .week-menu-day {
+  background: var(--bg-primary);
+  box-shadow: none;
+}
+
+.grid-stack-item-content .week-menu-day--today {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* The panels separate the sidebar now, so drop its divider line. */
+.dashboard--advanced .dash-sidebar {
+  border: none;
+  padding-left: 0;
+  padding-top: 0;
+}
