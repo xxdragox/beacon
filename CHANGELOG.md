@@ -1,3 +1,9 @@
+# [1.38.0-mc7.8](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon), scheduled chores (part 3):
+
+* Chores page **Month** view: a calendar grid with each day's chores and a dot per person (filled when done, red when overdue or missed, hollow when upcoming); busy days show "+N more". Daily chores are hidden unless "Show daily chores" is ticked, so monthly and quarterly ones stand out. Tapping a day opens it in the Day view
+
 # [1.38.0-mc7.7](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon), scheduled chores (part 2):

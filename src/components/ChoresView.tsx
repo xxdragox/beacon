@@ -5,6 +5,7 @@ import { ChoreOccurrence, scheduleOf } from '../api/chore-schedule';
 import { toggleOccurrence, useTodayKey } from '../hooks/useChoreDay';
 import { DayChoresView } from './chores/DayChoresView';
 import { WeekChoresView } from './chores/WeekChoresView';
+import { MonthChoresView } from './chores/MonthChoresView';
 import { ScheduleEditor, defaultSchedule } from './chores/ScheduleEditor';
 import { ManageChoresView } from './chores/ManageChoresView';
 import { useChores } from '../hooks/useChores';
@@ -22,7 +23,7 @@ const emptyChoreForm = () => ({
   icon: '🧹',
 });
 
-type ChoresTab = 'day' | 'week' | 'manage';
+type ChoresTab = 'day' | 'week' | 'month' | 'manage';
 
 export function ChoresView() {
   const { members } = useFamily();
@@ -129,7 +130,7 @@ export function ChoresView() {
         <h1 className="chores-view-title">Chores</h1>
         {members.length > 0 && (
           <div className="settings-segment chores-tabs" role="tablist">
-            {([['day', 'Day'], ['week', 'Week'], ['manage', 'Manage']] as const).map(([id, label]) => (
+            {([['day', 'Day'], ['week', 'Week'], ['month', 'Month'], ['manage', 'Manage']] as const).map(([id, label]) => (
               <button
                 key={id}
                 type="button"
@@ -192,6 +193,16 @@ export function ChoresView() {
           onAdd={() => openAddForm()}
           onEdit={handleStartEdit}
           onDelete={handleDeleteChore}
+        />
+      ) : tab === 'month' ? (
+        <MonthChoresView
+          chores={chores}
+          completions={completions}
+          members={members}
+          today={today}
+          weekStartsOn={settings.weekStartsOn}
+          memberFilter={memberFilter}
+          onOpenDay={openDay}
         />
       ) : tab === 'week' ? (
         <WeekChoresView
