@@ -1389,3 +1389,31 @@
   background: var(--bg-surface);
   border-color: color-mix(in srgb, var(--accent) 22%, var(--border));
 }
+
+/* ─── Card titles (fork) ───
+   Section titles on dashboard cards read clearly as titles: larger,
+   full-strength text with a light rule underneath. */
+.dash-sidebar-heading {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--text-primary);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Cards whose content fills the card (family calendar) keep their title on top. */
+.dash-card-titled {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.dash-card-titled > .dash-family-grid,
+.dash-card-titled > .dash-events-fallback {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}

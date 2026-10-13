@@ -1,3 +1,10 @@
+# [1.38.0-mc7.14](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon):
+
+* dashboard card titles are larger, full-strength and underlined so they read as section headers
+* the Family Calendar card has a title: a custom one from its card settings, else "Today's Schedule" (or "Schedule · Wed, Oct 14" when paged to another day)
+
 # [1.38.0-mc7.13](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon):

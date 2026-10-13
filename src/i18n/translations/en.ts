@@ -60,6 +60,8 @@ export const en = {
   'dashboard.thisWeek': 'This Week',
   'dashboard.weekEmpty': '—',
   'dashboard.menu': 'Menu',
+  'dashboard.todaysSchedule': 'Today\'s Schedule',
+  'dashboard.scheduleFor': 'Schedule · {date}',
   'dashboard.weekMenu': 'Week Menu',
   'dashboard.nothingPlanned': 'Nothing planned',
   'dashboard.tasks': 'Tasks',

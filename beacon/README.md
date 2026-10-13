@@ -29,7 +29,7 @@
 > **Fork note (xxdragox/beacon):** this is a personal fork of [asachs01/beacon](https://github.com/asachs01/beacon).
 > Changes from upstream:
 > - Family member emoji avatars are removed throughout the UI (chore cards show a member-colored dot instead).
-> - Customizable dashboard fills gaps, reflows on narrow and portrait screens, hides regions with nothing to show, and puts cards in bordered panels like the Settings page under an accent-tinted header band.
+> - Customizable dashboard fills gaps, reflows on narrow and portrait screens, hides regions with nothing to show, and puts cards in bordered, titled panels like the Settings page under an accent-tinted header band.
 > - Meal plans come from [Mealie](https://mealie.io) via Home Assistant's Mealie integration, with a new "Week Menu" card.
 > - Chores have real schedules (weekdays, every N weeks/months, quarterly, after last done, one time), shared chores, overdue tracking, Day/Week/Month/Manage views with a person filter, and 40 chore pictures for icons.
 > - The Calendar tab has Week and Month views, a hideable color key, picks calendars from a "Calendars" menu instead of a row of pills, and has no task sidebar.

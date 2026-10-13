@@ -55,6 +55,8 @@ export const de: Record<TranslationKey, string> = {
   'dashboard.thisWeek': 'Diese Woche',
   'dashboard.weekEmpty': '—',
   'dashboard.menu': 'Menü',
+  'dashboard.todaysSchedule': 'Heutiger Zeitplan',
+  'dashboard.scheduleFor': 'Zeitplan · {date}',
   'dashboard.weekMenu': 'Wochenmenü',
   'dashboard.nothingPlanned': 'Nichts geplant',
   'dashboard.tasks': 'To-dos',

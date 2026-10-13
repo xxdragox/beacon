@@ -55,6 +55,8 @@ export const ko: Record<TranslationKey, string> = {
   'dashboard.thisWeek': '이번 주',
   'dashboard.weekEmpty': '—',
   'dashboard.menu': '메뉴',
+  'dashboard.todaysSchedule': '오늘의 일정',
+  'dashboard.scheduleFor': '일정 · {date}',
   'dashboard.weekMenu': '주간 식단',
   'dashboard.nothingPlanned': '계획 없음',
   'dashboard.tasks': '할 일',

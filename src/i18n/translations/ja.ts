@@ -55,6 +55,8 @@ export const ja: Record<TranslationKey, string> = {
   'dashboard.thisWeek': '今週',
   'dashboard.weekEmpty': '—',
   'dashboard.menu': 'メニュー',
+  'dashboard.todaysSchedule': '今日の予定',
+  'dashboard.scheduleFor': '予定 · {date}',
   'dashboard.weekMenu': '今週の献立',
   'dashboard.nothingPlanned': '予定なし',
   'dashboard.tasks': 'タスク',

@@ -26,9 +26,10 @@ export const cardRegistry: Record<string, CardDefinition> = {
     displayName: 'Family Calendar',
     icon: '📅',
     component: FamilyCalendarCard,
-    defaultConfig: { show_other: true },
+    defaultConfig: { title: '', show_other: true },
     defaultSize: 'lg',
     configFields: [
+      { type: 'text', key: 'title', label: 'Title' },
       {
         type: 'toggle',
         key: 'show_other',

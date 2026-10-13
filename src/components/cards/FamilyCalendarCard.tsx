@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { DashboardCardProps } from '../../types/dashboard-cards';
 import { EventCard } from '../EventCard';
 import { readBoolean } from './card-config';
@@ -5,9 +6,16 @@ import { useTranslation } from '../../i18n';
 
 /** Per-member calendar grid (default layout's main content). */
 export function FamilyCalendarCard({ config, context }: DashboardCardProps) {
-  const { t } = useTranslation();
-  const { members, byMember, other, todayEvents, onEventClick, selectedMemberFilter, toggleMemberFilter, isViewingToday } = context;
+  const { t, dateLocale } = useTranslation();
+  const { members, byMember, other, todayEvents, onEventClick, selectedMemberFilter, toggleMemberFilter, isViewingToday, selectedDate } = context;
   const showOther = readBoolean(config, 'show_other', true);
+  // Section title: a custom one from the card settings, else "Today's
+  // Schedule" (or "Schedule · Wed, Oct 14" when paged to another day).
+  const customTitle = typeof config.title === 'string' ? config.title.trim() : '';
+  const title = customTitle || (isViewingToday
+    ? t('dashboard.todaysSchedule')
+    : t('dashboard.scheduleFor', { date: format(selectedDate, 'EEE, MMM d', { locale: dateLocale }) }));
+  const heading = <h3 className="dash-sidebar-heading">{title}</h3>;
 
   const hasMemberCalendars = members.some(
     (m) => m.calendar_entity || (m.additional_calendar_entities?.length ?? 0) > 0,
@@ -16,6 +24,8 @@ export function FamilyCalendarCard({ config, context }: DashboardCardProps) {
   if (!hasMemberCalendars) {
     // Fallback: flat event list when no members have calendars assigned
     return (
+      <div className="dash-card-titled">
+      {heading}
       <div className="dash-events-fallback">
         <div className="dashboard-events-scroll">
           {todayEvents.length === 0 ? (
@@ -29,10 +39,13 @@ export function FamilyCalendarCard({ config, context }: DashboardCardProps) {
           )}
         </div>
       </div>
+      </div>
     );
   }
 
   return (
+    <div className="dash-card-titled">
+    {heading}
     <div className="dash-family-grid" style={{ '--member-count': members.length } as React.CSSProperties}>
       {members.map((member) => {
         const memberEvents = byMember.get(member.id) || [];
@@ -76,6 +89,7 @@ export function FamilyCalendarCard({ config, context }: DashboardCardProps) {
           </div>
         </section>
       )}
+    </div>
     </div>
   );
 }
