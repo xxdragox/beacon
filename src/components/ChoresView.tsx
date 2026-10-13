@@ -4,6 +4,7 @@ import { Chore, ChoreSchedule, FamilyMember, STAR_CURRENCY } from '../types/fami
 import { ChoreOccurrence, scheduleOf } from '../api/chore-schedule';
 import { toggleOccurrence, useTodayKey } from '../hooks/useChoreDay';
 import { DayChoresView } from './chores/DayChoresView';
+import { WeekChoresView } from './chores/WeekChoresView';
 import { ScheduleEditor, defaultSchedule } from './chores/ScheduleEditor';
 import { ManageChoresView } from './chores/ManageChoresView';
 import { useChores } from '../hooks/useChores';
@@ -21,7 +22,7 @@ const emptyChoreForm = () => ({
   icon: '🧹',
 });
 
-type ChoresTab = 'day' | 'manage';
+type ChoresTab = 'day' | 'week' | 'manage';
 
 export function ChoresView() {
   const { members } = useFamily();
@@ -39,6 +40,14 @@ export function ChoresView() {
   const today = useTodayKey();
 
   const [tab, setTab] = useState<ChoresTab>('day');
+  /** Person filter shared by every tab (null = everyone). */
+  const [memberFilter, setMemberFilter] = useState<string | null>(null);
+  /** Day shown in the Day view (Week view headers jump to a day). */
+  const [dayDate, setDayDate] = useState<string | null>(null);
+  const openDay = (date: string) => {
+    setDayDate(date);
+    setTab('day');
+  };
   const [showForm, setShowForm] = useState(false);
   const [editingChoreId, setEditingChoreId] = useState<string | null>(null);
   const [newChore, setNewChore] = useState(emptyChoreForm);
@@ -120,7 +129,7 @@ export function ChoresView() {
         <h1 className="chores-view-title">Chores</h1>
         {members.length > 0 && (
           <div className="settings-segment chores-tabs" role="tablist">
-            {([['day', 'Day'], ['manage', 'Manage']] as const).map(([id, label]) => (
+            {([['day', 'Day'], ['week', 'Week'], ['manage', 'Manage']] as const).map(([id, label]) => (
               <button
                 key={id}
                 type="button"
@@ -146,18 +155,54 @@ export function ChoresView() {
         )}
       </header>
 
+      {members.length > 1 && (
+        <div className="chores-person-filter" role="group" aria-label="Show chores for">
+          <button
+            type="button"
+            className={`filter-pill ${memberFilter === null ? 'filter-pill--active' : ''}`}
+            aria-pressed={memberFilter === null}
+            onClick={() => setMemberFilter(null)}
+          >
+            <span className="filter-name">Everyone</span>
+          </button>
+          {members.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              className={`filter-pill ${memberFilter === m.id ? 'filter-pill--active' : ''}`}
+              aria-pressed={memberFilter === m.id}
+              onClick={() => setMemberFilter((f) => (f === m.id ? null : m.id))}
+            >
+              <span className="filter-dot" style={{ backgroundColor: m.color }} />
+              <span className="filter-name">{m.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {members.length === 0 ? (
         <div className="chores-empty">
           Add family members first to assign chores.
         </div>
       ) : tab === 'manage' ? (
         <ManageChoresView
-          chores={chores}
+          chores={memberFilter ? chores.filter((c) => c.assigned_to.length === 0 || c.assigned_to.includes(memberFilter)) : chores}
           members={members}
           currencySymbol={settings.currencySymbol}
           onAdd={() => openAddForm()}
           onEdit={handleStartEdit}
           onDelete={handleDeleteChore}
+        />
+      ) : tab === 'week' ? (
+        <WeekChoresView
+          chores={chores}
+          completions={completions}
+          members={members}
+          today={today}
+          weekStartsOn={settings.weekStartsOn}
+          memberFilter={memberFilter}
+          onToggle={handleToggle}
+          onOpenDay={openDay}
         />
       ) : (
         <DayChoresView
@@ -165,6 +210,9 @@ export function ChoresView() {
           completions={completions}
           members={members}
           today={today}
+          date={dayDate ?? today}
+          onDateChange={setDayDate}
+          memberFilter={memberFilter}
           currencySymbol={settings.currencySymbol}
           getStreakForMember={getStreakForMember}
           onToggle={handleToggle}

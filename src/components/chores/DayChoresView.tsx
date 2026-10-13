@@ -18,6 +18,8 @@ interface DayChoresViewProps {
   /** Day to show; defaults to today. */
   date?: string;
   onDateChange?: (date: string) => void;
+  /** Only this person's column, when set. */
+  memberFilter?: string | null;
   currencySymbol: string;
   getStreakForMember: (memberId: string) => Streak;
   onToggle: (item: ChoreOccurrence, creditMemberId?: string) => void;
@@ -41,10 +43,11 @@ function noteFor(item: ChoreOccurrence, member: FamilyMember, members: FamilyMem
 
 /** Chores due on one day (today also shows overdue ones), a column per person. */
 export function DayChoresView({
-  chores, completions, members, today, date: controlledDate, onDateChange, currencySymbol,
+  chores, completions, members: allMembers, today, date: controlledDate, onDateChange, memberFilter, currencySymbol,
   getStreakForMember, onToggle, onAdd,
 }: DayChoresViewProps) {
   const [ownDate, setOwnDate] = useState(today);
+  const members = memberFilter ? allMembers.filter((m) => m.id === memberFilter) : allMembers;
   const date = controlledDate ?? ownDate;
   const setDate = (d: string) => (onDateChange ? onDateChange(d) : setOwnDate(d));
 
@@ -74,7 +77,7 @@ export function DayChoresView({
       {openItems.length > 0 && (
         <section className="chores-unassigned-section">
           <h2 className="chores-section-title">Anyone</h2>
-          <TaskChecklist items={openItems} today={today} onToggle={onToggle} members={members} />
+          <TaskChecklist items={openItems} today={today} onToggle={onToggle} members={allMembers} creditMemberId={memberFilter} />
         </section>
       )}
 
@@ -107,7 +110,7 @@ export function DayChoresView({
                 ) : (
                   <div className="chores-list">
                     {memberItems.map((item) => {
-                      const { note, tone } = noteFor(item, member, members);
+                      const { note, tone } = noteFor(item, member, allMembers);
                       return (
                         <ChoreCard
                           key={occurrenceKey(item)}

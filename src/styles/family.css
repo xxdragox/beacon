@@ -1410,3 +1410,175 @@
   height: 38px;
   min-width: 38px;
 }
+
+/* Person filter (all chores tabs) */
+.chores-person-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Week view */
+.chores-week {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+}
+
+.chores-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(120px, 1fr));
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.chores-week-day {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.chores-week-day--today {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent) 5%, var(--bg-surface));
+}
+
+.chores-week-day--past {
+  background: var(--bg-primary);
+}
+
+.chores-week-day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.chores-week-day-head:hover {
+  background: var(--bg-hover);
+}
+
+.chores-week-day-name {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.chores-week-day-num {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chores-week-day--today .chores-week-day-name,
+.chores-week-day--today .chores-week-day-num {
+  color: var(--accent);
+}
+
+.chores-week-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.chores-week-empty {
+  color: var(--text-light);
+  text-align: center;
+  padding: 8px 0;
+}
+
+.chores-week-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chores-week-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.chores-week-icon {
+  margin-right: 4px;
+}
+
+.week-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.week-pill {
+  --pill-color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--pill-color);
+  background: var(--bg-surface);
+  color: var(--pill-color);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.5;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.week-pill:disabled {
+  cursor: default;
+}
+
+.week-pill--done {
+  background: var(--pill-color);
+  color: #fff;
+}
+
+.week-pill--other-did-it {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+.week-pill--overdue,
+.week-pill--missed {
+  border-color: var(--color-red-full, #dc2626);
+  border-style: dashed;
+  color: var(--color-red-full, #dc2626);
+}
+
+.week-pill--missed {
+  opacity: 0.6;
+}
+
+.week-pill--upcoming {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.chores-person-filter .filter-pill {
+  cursor: pointer;
+}
+
+.chores-person-filter .filter-pill--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}

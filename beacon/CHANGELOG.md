@@ -1,3 +1,10 @@
+# [1.38.0-mc7.7](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
+
+Fork changes (xxdragox/beacon), scheduled chores (part 2):
+
+* Chores page **Week** view: a column per day (week start from Settings), a row per chore, a pill per person — solid when done, red when overdue or missed, faded when upcoming. Tap a pill to check off today's or overdue chores; on a shared chore, the pill you tap gets the credit. Tapping a day opens it in the Day view
+* person filter on every Chores tab (Day, Week, Manage)
+
 # [1.38.0-mc7.6](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon), scheduled chores (part 1):
