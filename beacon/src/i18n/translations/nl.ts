@@ -270,6 +270,8 @@ export const nl: Record<TranslationKey, string> = {
   // ---- settings: calendar ----
   'settings.calendar.title': 'Agenda',
   'settings.calendar.desc': 'Configureer de agendaweergave en standaardwaarden.',
+  'settings.calendar.defaultViewLabel': 'Standaard agendaweergave',
+  'settings.calendar.defaultViewSublabel': 'De weergave waarmee het tabblad Agenda opent',
   'settings.calendar.connectedCalendarsTitle': "Gekoppelde agenda's",
   'settings.calendar.noCalendars': "Geen agenda's gevonden. Verbind Home Assistant om agenda's te zien.",
   'settings.calendar.editColor': 'Agendakleur bewerken',

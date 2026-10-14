@@ -270,6 +270,8 @@ export const es: Record<TranslationKey, string> = {
   // ---- settings: calendar ----
   'settings.calendar.title': 'Calendario',
   'settings.calendar.desc': 'Configura la visualización y los valores predeterminados del calendario.',
+  'settings.calendar.defaultViewLabel': 'Vista predeterminada del calendario',
+  'settings.calendar.defaultViewSublabel': 'La vista con la que se abre la pestaña Calendario',
   'settings.calendar.connectedCalendarsTitle': 'Calendarios conectados',
   'settings.calendar.noCalendars': 'No se encontraron calendarios. Conecta Home Assistant para verlos.',
   'settings.calendar.editColor': 'Editar color del calendario',

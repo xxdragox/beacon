@@ -1,3 +1,9 @@
+# [1.38.0-mc7.15](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-14)
+
+Fork changes (xxdragox/beacon):
+
+* "Default calendar view" (Week / Month) in Settings → Calendar: the Calendar tab opens in that view each time; the toolbar toggle still switches while you're there. Replaces the per-screen memory of the last view
+
 # [1.38.0-mc7.14](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-13)
 
 Fork changes (xxdragox/beacon):

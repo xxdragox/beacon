@@ -214,13 +214,19 @@ export function App() {
   );
 
   // Week or month view on the Calendar page, remembered per screen.
-  const [calendarView, setCalendarView] = useState<'week' | 'month'>(() => {
-    try { return localStorage.getItem('beacon-calendar-view') === 'month' ? 'month' : 'week'; } catch { return 'week'; }
-  });
-  const changeCalendarView = useCallback((view: 'week' | 'month') => {
-    setCalendarView(view);
-    try { localStorage.setItem('beacon-calendar-view', view); } catch { /* storage unavailable */ }
-  }, []);
+  // Week or month view on the Calendar page: opens in the default from
+  // Settings → Calendar each time the tab is opened; the toggle switches
+  // views while you're there.
+  const [calendarView, setCalendarView] = useState<'week' | 'month'>(settings.calendarView);
+  const changeCalendarView = useCallback((view: 'week' | 'month') => setCalendarView(view), []);
+  useEffect(() => {
+    if (activeView === 'calendar') {
+      setCalendarView(settings.calendarView);
+      setWeekViewStart(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeView, settings.calendarView]);
+
   /** Calendar color key above the calendar, shown unless hidden on this screen. */
   const [legendVisible, setLegendVisible] = useState(() => {
     try { return localStorage.getItem('beacon-calendar-legend') !== 'hidden'; } catch { return true; }

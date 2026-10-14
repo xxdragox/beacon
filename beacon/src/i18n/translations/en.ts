@@ -275,6 +275,8 @@ export const en = {
   // ---- settings: calendar ----
   'settings.calendar.title': 'Calendar',
   'settings.calendar.desc': 'Configure calendar display and defaults.',
+  'settings.calendar.defaultViewLabel': 'Default calendar view',
+  'settings.calendar.defaultViewSublabel': 'The view the Calendar tab opens in',
   'settings.calendar.connectedCalendarsTitle': 'Connected Calendars',
   'settings.calendar.noCalendars': 'No calendars found. Connect Home Assistant to see calendars.',
   'settings.calendar.editColor': 'Edit calendar color',

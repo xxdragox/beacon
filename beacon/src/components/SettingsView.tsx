@@ -1122,6 +1122,23 @@ export function SettingsView({
       <p className="settings-section-desc">{t('settings.calendar.desc')}</p>
 
       <div className="settings-group">
+        <div className="settings-row">
+          <div className="settings-row-label">
+            {t('settings.calendar.defaultViewLabel')}
+            <div className="settings-row-sublabel">{t('settings.calendar.defaultViewSublabel')}</div>
+          </div>
+          <Segment
+            value={settings.calendarView}
+            options={[
+              { value: 'week', label: t('calendarView.week') },
+              { value: 'month', label: t('calendarView.month') },
+            ]}
+            onChange={(v) => onUpdateSettings({ calendarView: v })}
+          />
+        </div>
+      </div>
+
+      <div className="settings-group">
         <div className="settings-group-title">{t('settings.calendar.connectedCalendarsTitle')}</div>
         {calendars.length === 0 ? (
           <div className="settings-row">

@@ -270,6 +270,8 @@ export const de: Record<TranslationKey, string> = {
   // ---- settings: calendar ----
   'settings.calendar.title': 'Kalender',
   'settings.calendar.desc': 'Kalenderanzeige und Standardwerte konfigurieren.',
+  'settings.calendar.defaultViewLabel': 'Standard-Kalenderansicht',
+  'settings.calendar.defaultViewSublabel': 'Ansicht beim Öffnen des Kalender-Tabs',
   'settings.calendar.connectedCalendarsTitle': 'Verbundene Kalender',
   'settings.calendar.noCalendars': 'Keine Kalender gefunden. Verbinde Home Assistant, um Kalender zu sehen.',
   'settings.calendar.editColor': 'Kalenderfarbe bearbeiten',

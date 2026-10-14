@@ -270,6 +270,8 @@ export const ko: Record<TranslationKey, string> = {
   // ---- settings: calendar ----
   'settings.calendar.title': '캘린더',
   'settings.calendar.desc': '캘린더 표시 방식과 기본값을 설정합니다.',
+  'settings.calendar.defaultViewLabel': '캘린더 기본 보기',
+  'settings.calendar.defaultViewSublabel': '캘린더 탭을 열 때 표시되는 보기',
   'settings.calendar.connectedCalendarsTitle': '연결된 캘린더',
   'settings.calendar.noCalendars': '캘린더를 찾을 수 없습니다. Home Assistant에 연결해 캘린더를 확인하세요.',
   'settings.calendar.editColor': '캘린더 색상 편집',

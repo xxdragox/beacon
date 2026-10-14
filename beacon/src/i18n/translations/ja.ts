@@ -270,6 +270,8 @@ export const ja: Record<TranslationKey, string> = {
   // ---- settings: calendar ----
   'settings.calendar.title': 'カレンダー',
   'settings.calendar.desc': 'カレンダーの表示とデフォルト設定を行います。',
+  'settings.calendar.defaultViewLabel': 'カレンダーのデフォルト表示',
+  'settings.calendar.defaultViewSublabel': 'カレンダータブを開いたときの表示',
   'settings.calendar.connectedCalendarsTitle': '連携済みのカレンダー',
   'settings.calendar.noCalendars': 'カレンダーが見つかりません。Home Assistantに接続してください。',
   'settings.calendar.editColor': 'カレンダーの色を編集',
