@@ -1,3 +1,9 @@
+# [1.38.0-mc7.16](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-14)
+
+Fork changes (xxdragox/beacon):
+
+* fetch calendars at most 3 at a time across every load on the screen (was all at once since 1.38.0-mc7.11). Bursts of simultaneous requests got Home Assistant rate-limited by iCloud, which marks calendars unavailable — and HA silently skips event writes to an unavailable calendar. A load that's been superseded (e.g. the dashboard week once the month view starts) stops queuing requests
+
 # [1.38.0-mc7.15](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-14)
 
 Fork changes (xxdragox/beacon):

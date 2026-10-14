@@ -4,6 +4,43 @@ import { haFetch, hasToken, callBeaconAction, BeaconActionError } from '../api/h
 import { HomeAssistantClient, toWsEventPayload } from '../api/homeassistant';
 import { isMealCalendar } from '../api/meal-calendars';
 
+/** Calendar requests in flight at once, across every fetch on this screen (see fetchEvents). */
+const CALENDAR_FETCH_CONCURRENCY = 3;
+
+/**
+ * One shared limit for all calendar requests: overlapping fetches (the
+ * dashboard's week loading while the month view starts, a 5-minute refresh…)
+ * queue behind each other instead of stacking up requests to iCloud.
+ */
+let calendarSlotsInUse = 0;
+const calendarSlotWaiters: Array<() => void> = [];
+async function withCalendarSlot<R>(fn: () => Promise<R>): Promise<R> {
+  if (calendarSlotsInUse >= CALENDAR_FETCH_CONCURRENCY) {
+    await new Promise<void>((resolve) => calendarSlotWaiters.push(resolve));
+  }
+  calendarSlotsInUse++;
+  try {
+    return await fn();
+  } finally {
+    calendarSlotsInUse--;
+    calendarSlotWaiters.shift()?.();
+  }
+}
+
+/** Map over `items` with at most `limit` calls in flight; results keep input order. */
+export async function mapWithLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await fn(items[i]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
 /**
  * Re-thrown by createEvent/updateEvent/deleteEvent when HA reports the calendar
  * doesn't support that operation (CalendarEntityFeature.CREATE_EVENT /
@@ -83,8 +120,13 @@ export function useCalendarEvents(
       }
       if (cals.length === 0) return;
 
-      // All calendars in parallel (a month range is slow per calendar).
-      const perCalendar = await Promise.all(cals.map(async (cal): Promise<CalendarEvent[]> => {
+      // A few calendars at a time: faster than one by one (a month range is
+      // slow per calendar), but not all at once — iCloud rate-limits Home
+      // Assistant's CalDAV when hit with a burst, and HA then marks those
+      // calendars unavailable (and silently skips writes to them).
+      const perCalendar = await mapWithLimit(cals, CALENDAR_FETCH_CONCURRENCY, (cal) => withCalendarSlot(async (): Promise<CalendarEvent[]> => {
+        // Superseded by a newer fetch while queued: skip the request.
+        if (fetchSeq.current !== seq) return [];
         try {
           const params = new URLSearchParams({ start, end });
           const result = await haFetch(`/api/calendars/${cal.id}?${params}`) as Array<{
