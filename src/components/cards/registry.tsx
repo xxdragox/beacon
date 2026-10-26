@@ -6,6 +6,7 @@ import { AgendaWeekCard } from './AgendaWeekCard';
 import { MenuCard } from './MenuCard';
 import { WeekMenuCard } from './WeekMenuCard';
 import { TasksCard } from './TasksCard';
+import { ChoresCard } from './ChoresCard';
 import { ShoppingCard } from './ShoppingCard';
 import { HaEntityCard } from './HaEntityCard';
 import { HaEntitiesListCard } from './HaEntitiesListCard';
@@ -83,6 +84,15 @@ export const cardRegistry: Record<string, CardDefinition> = {
     displayName: 'Tasks',
     icon: '✅',
     component: TasksCard,
+    defaultConfig: {},
+    defaultSize: 'sm',
+    allowedRegions: ['sidebar'],
+  },
+  chores: {
+    type: 'chores',
+    displayName: 'Chores',
+    icon: '🧹',
+    component: ChoresCard,
     defaultConfig: {},
     defaultSize: 'sm',
     allowedRegions: ['sidebar'],

@@ -1,3 +1,9 @@
+# [1.38.0-mc7.17](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-26)
+
+Fork changes (xxdragox/beacon):
+
+* new "Chores" dashboard card (sidebar) that always shows today's chore checklist. The Tasks card only falls back to chores when there are no HA to-do items, so a dashboard can now show tasks and chores side by side
+
 # [1.38.0-mc7.16](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-14)
 
 Fork changes (xxdragox/beacon):
