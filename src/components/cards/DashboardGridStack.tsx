@@ -123,6 +123,11 @@ export function DashboardGridStack({ region, cards, context, editMode, fillHeigh
     // Reflowed positions at a reduced column count are display-only — never
     // persist them over the full-width layout.
     if (gridRef.current && gridRef.current.getColumn() !== columnCount) return;
+    // Outside edit mode nothing can be dragged or resized, so any change is
+    // GridStack resolving a collision (e.g. a screen with a stale cached layout
+    // receiving a newer one from the server). Saving that would overwrite the
+    // layout shared by every screen.
+    if (!editModeRef.current) return;
     const next = cardsRef.current.map((c) => {
       const node = nodes.find((n) => n.id === c.id);
       if (!node) return c;
@@ -215,8 +220,24 @@ export function DashboardGridStack({ region, cards, context, editMode, fillHeigh
     // Saved positions are in full-width units, so add new widgets at the full
     // column count and reflow back down afterwards.
     const pending = cards.filter((c) => !madeWidgetIds.current.has(c.id) && itemElsRef.current.has(c.id));
+    // Existing widgets whose saved layout changed underneath them (the server
+    // copy replacing a stale cached one) move to it, rather than keeping their
+    // old spot and colliding with the newer layout's cards.
+    const moved = cards.filter((c) => {
+      if (!c.layout || !madeWidgetIds.current.has(c.id)) return false;
+      const node = grid.engine.nodes.find((n) => n.id === c.id);
+      return !!node && (node.x !== c.layout.x || node.y !== c.layout.y || node.w !== c.layout.w || node.h !== c.layout.h);
+    });
     const reducedColumns = grid.getColumn();
-    if (pending.length > 0 && reducedColumns !== columnCount) grid.column(columnCount);
+    if ((pending.length > 0 || moved.length > 0) && reducedColumns !== columnCount) grid.column(columnCount);
+    if (!editMode && moved.length > 0) {
+      grid.batchUpdate();
+      moved.forEach((c) => {
+        const el = itemElsRef.current.get(c.id);
+        if (el && c.layout) grid.update(el, { x: c.layout.x, y: c.layout.y, w: c.layout.w, h: c.layout.h });
+      });
+      grid.batchUpdate(false);
+    }
     pending.forEach((c) => {
       const el = itemElsRef.current.get(c.id);
       if (!el) return;
@@ -236,7 +257,7 @@ export function DashboardGridStack({ region, cards, context, editMode, fillHeigh
       // already occupy all the visible space — scroll new ones into view.
       if (sizeHint) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
-    if (pending.length > 0 && reducedColumns !== columnCount) applyColumns(containerRef.current?.clientWidth ?? 0);
+    if ((pending.length > 0 || moved.length > 0) && reducedColumns !== columnCount) applyColumns(containerRef.current?.clientWidth ?? 0);
   });
 
   const handleAdd = (type: string) => {

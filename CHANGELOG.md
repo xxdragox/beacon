@@ -1,3 +1,9 @@
+# [1.38.0-mc7.18](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-26)
+
+Fork changes (xxdragox/beacon):
+
+* the dashboard layout is only saved from Edit mode. A screen holding a stale cached layout used to collide it with the newer one from the server and save the jumbled result over the layout shared by every screen. It now moves its cards to the server's positions instead
+
 # [1.38.0-mc7.17](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-26)
 
 Fork changes (xxdragox/beacon):
