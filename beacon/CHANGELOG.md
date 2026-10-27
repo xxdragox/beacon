@@ -1,3 +1,9 @@
+# [1.38.0-mc7.21](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-27)
+
+Fork changes (xxdragox/beacon):
+
+* calendar cache fixes. In the add-on the cache never filled. The window's local-day calculation used a date format the add-on's Node build may lack, and a refresh that failed before its first network call stayed registered as running forever, so every later refresh returned that failure silently. The day calculation now uses the same method as the iCloud code, failures are logged and retried, background downloads run at most 2 at a time (no burst to iCloud on a cold start), and a write or a newer iCloud change tag that arrives during a running download gets a fresh download after it
+
 # [1.38.0-mc7.20](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-27)
 
 Fork changes (xxdragox/beacon):

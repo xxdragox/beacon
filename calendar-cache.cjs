@@ -17,7 +17,7 @@
  * If a refetch fails the previous copy keeps being served.
  */
 const fsp = require('fs/promises');
-const { wallTimeToEpoch } = require('./icloud-caldav.cjs');
+const { wallTimeToEpoch, zonedParts } = require('./icloud-caldav.cjs');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -32,6 +32,7 @@ function createCalendarCache({
   pollMs = 2 * 60 * 1000,
   untaggedMaxAgeMs = 15 * 60 * 1000,
   maxAgeMs = 60 * 60 * 1000,
+  maxConcurrentFetches = 2,
   log = console,
 }) {
   /** entityId -> { start, end, events, fetchedAt, tag } */
@@ -39,14 +40,23 @@ function createCalendarCache({
   /** Calendars screens have asked for; only these are kept warm. */
   const wanted = new Set();
   const inFlight = new Map();
+  // Background downloads share a small pool so they never burst iCloud.
+  let active = 0;
+  const waiting = [];
+  async function withSlot(fn) {
+    if (active >= maxConcurrentFetches) await new Promise((resolve) => waiting.push(resolve));
+    active++;
+    try { return await fn(); } finally {
+      active--;
+      waiting.shift()?.();
+    }
+  }
   let timer = null;
   let persistTimer = null;
 
   function dayStart(epochMs, tz) {
-    const d = new Date(epochMs);
-    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' })
-      .format(d).split('-').map(Number);
-    return wallTimeToEpoch({ year: parts[0], month: parts[1], day: parts[2] }, tz);
+    const { year, month, day } = zonedParts(epochMs, tz);
+    return wallTimeToEpoch({ year, month, day }, tz);
   }
 
   function windowNow() {
@@ -94,14 +104,26 @@ function createCalendarCache({
     return { events: overlapping(entry.events, start, end), fetchedAt: entry.fetchedAt };
   }
 
-  /** Refetch one calendar's window from HA (deduplicated while one is running). */
-  function refresh(entityId, tag) {
-    if (inFlight.has(entityId)) return inFlight.get(entityId);
+  /**
+   * Refetch one calendar's window from HA. A refresh already running is
+   * reused, unless the caller needs data newer than when it started (a new
+   * change tag, or `fresh` after a write): then one more runs after it.
+   */
+  function refresh(entityId, tag, { fresh = false } = {}) {
+    if (inFlight.has(entityId)) {
+      const running = inFlight.get(entityId);
+      if (tag === undefined && !fresh) return running;
+      return running.catch(() => {}).then(() => refresh(entityId, tag, { fresh }));
+    }
     const job = (async () => {
-      const { start, end } = windowNow();
+      // Yield first: the finally below must run after inFlight.set, or a
+      // synchronous failure would leave a dead job registered forever.
+      await null;
       const t0 = now();
       try {
-        const events = await fetchEvents(entityId, new Date(start).toISOString(), new Date(end).toISOString());
+        const { start, end } = windowNow();
+        if (!Number.isFinite(start) || !Number.isFinite(end)) throw new Error(`bad cache window for time zone ${getTimeZone()}`);
+        const events = await withSlot(() => fetchEvents(entityId, new Date(start).toISOString(), new Date(end).toISOString()));
         const prev = entries.get(entityId);
         entries.set(entityId, { start, end, events, fetchedAt: now(), tag: tag !== undefined ? tag : prev?.tag ?? null });
         schedulePersist();

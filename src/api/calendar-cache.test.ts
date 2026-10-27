@@ -102,6 +102,40 @@ describe('calendar cache', () => {
     expect(fetchEvents).toHaveBeenCalledTimes(1);
   });
 
+  it('logs a failed window calculation and retries on the next refresh', async () => {
+    let tz = 'Not/AZone';
+    const warn = vi.fn();
+    const { cache, fetchEvents } = makeCache({ getTimeZone: () => tz, log: { info: () => {}, warn } });
+    await expect(cache.refresh('calendar.family')).rejects.toThrow();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(fetchEvents).not.toHaveBeenCalled();
+
+    tz = TZ;
+    await cache.refresh('calendar.family');
+    expect(fetchEvents).toHaveBeenCalledTimes(1);
+  });
+
+  it('fetches again after a running refresh when a write needs fresh data', async () => {
+    const { cache, fetchEvents } = makeCache();
+    await Promise.all([cache.refresh('calendar.family'), cache.refresh('calendar.family', undefined, { fresh: true })]);
+    expect(fetchEvents).toHaveBeenCalledTimes(2);
+  });
+
+  it('runs at most two downloads at once', async () => {
+    let active = 0;
+    let peak = 0;
+    const fetchEvents = vi.fn(async () => {
+      peak = Math.max(peak, ++active);
+      await new Promise((r) => setTimeout(r, 5));
+      active--;
+      return EVENTS;
+    });
+    const { cache } = makeCache({ fetchEvents });
+    await Promise.all(['a', 'b', 'c', 'd', 'e'].map((c) => cache.refresh(`calendar.${c}`)));
+    expect(fetchEvents).toHaveBeenCalledTimes(5);
+    expect(peak).toBe(2);
+  });
+
   it('shares one fetch between concurrent refreshes of the same calendar', async () => {
     const { cache, fetchEvents } = makeCache();
     await Promise.all([cache.refresh('calendar.family'), cache.refresh('calendar.family')]);

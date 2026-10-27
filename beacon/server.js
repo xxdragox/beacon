@@ -362,7 +362,7 @@ function handleCalendarEventAction(req, res) {
       }
       // Refetch before answering, so the screen's reload right after sees the change.
       await Promise.race([
-        calendarCache.refresh(entity_id).catch(() => {}),
+        calendarCache.refresh(entity_id, undefined, { fresh: true }).catch(() => {}),
         new Promise((resolve) => setTimeout(resolve, 15000)),
       ]);
       res.writeHead(200, { 'Content-Type': 'application/json' });
