@@ -1,3 +1,18 @@
+# [1.40.0-mc7.22](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-10-27)
+
+Merged upstream Beacon 1.39.0 to 1.40.0 into the fork:
+
+* photo frame and screensaver photos load through the add-on's HA connection (resolve_media), so they work without a browser token
+* the notification lead-time setting is respected (it was always 15 minutes)
+* the Kiosk Mode setting really hides the sidebar. **Kiosk Mode must stay off** for screens that use the side menu
+* more screens, cards and widgets translated; a CI check keeps `beacon/` in sync with the root
+* new Beacon Light icon and logo set
+
+Fork changes (xxdragox/beacon):
+
+* the fork's Chores page is kept as is (upstream only translated the old page)
+* the Chores and Week Menu cards and the calendar card's Title field use translation keys like the other cards. New strings are in all 9 languages
+
 # [1.38.0-mc7.21](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-27)
 
 Fork changes (xxdragox/beacon):

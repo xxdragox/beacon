@@ -4,6 +4,7 @@ import { CalendarEvent, WeatherData } from '../types';
 import { FamilyMember } from './family';
 import { DayMenu } from './meals';
 import type { TaskmateUser } from './taskmate';
+import type { TranslationKey } from '../i18n/translations/en';
 
 export interface TodoItem {
   uid: string;
@@ -100,30 +101,30 @@ export type CardConfigField =
   | {
     type: 'text';
     key: string;
-    label: string;
+    labelKey: TranslationKey;
   }
   | {
     type: 'entity';
     key: string;
-    label: string;
+    labelKey: TranslationKey;
   }
   | {
     type: 'entity-list';
     key: string;
-    label: string;
+    labelKey: TranslationKey;
     /** Previous single-entity key to migrate into this list when configured. */
     legacyKey?: string;
   }
   | {
     type: 'toggle';
     key: string;
-    label: string;
-    description?: string;
+    labelKey: TranslationKey;
+    descriptionKey?: TranslationKey;
   };
 
 export interface CardDefinition {
   type: string;
-  displayName: string;
+  displayNameKey: TranslationKey;
   icon: string;
   component: DashboardCardComponent;
   defaultConfig: Record<string, unknown>;
