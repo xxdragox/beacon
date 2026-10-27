@@ -1,3 +1,9 @@
+# [1.38.0-mc7.20](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-27)
+
+Fork changes (xxdragox/beacon):
+
+* calendar events load from a cache in the add-on instead of a live iCloud round trip per calendar. The add-on keeps each calendar's events from about two months back to six months ahead, saved to disk so a restart starts warm, and every screen shares it. Every 2 minutes one cheap iCloud request (getctag) shows which calendars changed, and only those are refetched; calendars that aren't iCloud are refetched every 15 minutes, and everything at least hourly. Adds, edits and deletes made in Beacon refresh that calendar before the screen reloads. Ranges outside the window, and any cache error, fall back to asking Home Assistant as before. `GET /beacon-action/calendar-cache` shows what's cached; `POST` refetches everything now
+
 # [1.38.0-mc7.19](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-27)
 
 Fork changes (xxdragox/beacon):

@@ -340,6 +340,7 @@ function xmlResponses(xml) {
 function createClient({ username, password, fetchImpl = fetch }) {
   const auth = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
   let calendarCache = null;
+  let homeUrl = null;
 
   /**
    * CalDAV request that follows iCloud's cross-host redirects (e.g. to
@@ -373,28 +374,55 @@ function createClient({ username, password, fetchImpl = fetch }) {
   }
 
   async function propfind(url, depth, props) {
-    const body = `<?xml version="1.0" encoding="utf-8"?><d:propfind xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav"><d:prop>${props}</d:prop></d:propfind>`;
+    const body = `<?xml version="1.0" encoding="utf-8"?><d:propfind xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/"><d:prop>${props}</d:prop></d:propfind>`;
     const { res, url: finalUrl } = await request('PROPFIND', url, { body, depth });
     if (res.status !== 207) throw new ICloudError(`iCloud PROPFIND failed (HTTP ${res.status}).`, 'icloud_error');
     return { xml: await res.text(), url: finalUrl };
   }
 
   /** All iCloud calendars as [{ name, url }], cached for a few minutes. */
-  async function listCalendars() {
-    if (calendarCache && Date.now() - calendarCache.at < CALENDAR_CACHE_MS) return calendarCache.calendars;
+  /** The account's calendar-home URL (it never changes, so it's looked up once). */
+  async function calendarHomeUrl() {
+    if (homeUrl) return homeUrl;
     const root = await propfind(ICLOUD_CALDAV_URL, 0, '<d:current-user-principal/>');
     const principalHref = xmlText(xmlText(root.xml, 'current-user-principal') || '', 'href');
     if (!principalHref) throw new ICloudError('Could not find the iCloud calendar account.', 'icloud_error');
     const principal = await propfind(new URL(principalHref, root.url).toString(), 0, '<c:calendar-home-set/>');
     const homeHref = xmlText(xmlText(principal.xml, 'calendar-home-set') || '', 'href');
     if (!homeHref) throw new ICloudError('Could not find the iCloud calendar home.', 'icloud_error');
-    const home = await propfind(new URL(homeHref, principal.url).toString(), 1, '<d:displayname/><d:resourcetype/>');
-    const calendars = xmlResponses(home.xml)
+    homeUrl = new URL(homeHref, principal.url).toString();
+    return homeUrl;
+  }
+
+  /** Calendars in the home as [{ name, url, ctag }] — one PROPFIND, never cached. */
+  async function fetchCalendars() {
+    const home = await propfind(await calendarHomeUrl(), 1, '<d:displayname/><d:resourcetype/><cs:getctag/>');
+    return xmlResponses(home.xml)
       .filter((r) => /<(?:[\w-]+:)?calendar[\s/>]/i.test(xmlText(r, 'resourcetype') || ''))
-      .map((r) => ({ name: xmlText(r, 'displayname') || '', url: new URL(xmlText(r, 'href'), home.url).toString() }))
+      .map((r) => ({
+        name: xmlText(r, 'displayname') || '',
+        url: new URL(xmlText(r, 'href'), home.url).toString(),
+        ctag: xmlText(r, 'getctag') || null,
+      }))
       .filter((c) => c.name);
+  }
+
+  async function listCalendars() {
+    if (calendarCache && Date.now() - calendarCache.at < CALENDAR_CACHE_MS) return calendarCache.calendars;
+    const calendars = await fetchCalendars();
     calendarCache = { at: Date.now(), calendars };
     return calendars;
+  }
+
+  /**
+   * Each calendar's change tag (CalendarServer getctag), keyed by lower-cased,
+   * trimmed calendar name. A calendar's tag changes whenever any event in it
+   * does, so comparing tags is a cheap "has anything changed?" check.
+   */
+  async function listChangeTags() {
+    const calendars = await fetchCalendars();
+    calendarCache = { at: Date.now(), calendars };
+    return new Map(calendars.map((c) => [c.name.trim().toLowerCase(), c.ctag]));
   }
 
   async function findCalendarByName(name) {
@@ -462,7 +490,7 @@ function createClient({ username, password, fetchImpl = fetch }) {
     checkWrite(res, 'delete');
   }
 
-  return { listCalendars, findCalendarByName, updateEvent, deleteEvent };
+  return { listCalendars, listChangeTags, findCalendarByName, updateEvent, deleteEvent };
 }
 
 module.exports = {

@@ -13,6 +13,7 @@ const fsp = require('fs/promises');
 const path = require('path');
 const WebSocket = require('ws');
 const icloud = require('./icloud-caldav.cjs');
+const { createCalendarCache } = require('./calendar-cache.cjs');
 
 const PORT = 3000;
 const DIST = process.env.BEACON_DIST || '/app/dist';
@@ -261,14 +262,23 @@ function getICloudClient() {
  * HA integration (CalDAV) can't. The HA entity's name is matched to the
  * iCloud calendar's name; naive times are in HA's configured time zone.
  */
-async function icloudCalendarEvent(client, { op, entity_id, uid, recurrence_id, event }) {
-  const [state, config, registry] = await Promise.all([
+/**
+ * Names an HA calendar may have in iCloud: its HA display name and, for a
+ * calendar renamed in HA, the registry's original_name (the iCloud name).
+ */
+async function calendarNamesFor(entity_id) {
+  const [state, registry] = await Promise.all([
     haRequest('GET', `/api/states/${encodeURIComponent(entity_id)}`),
-    haRequest('GET', '/api/config'),
-    // A calendar renamed in HA keeps its iCloud name as the registry's original_name.
     haWsCommand({ type: 'config/entity_registry/get', entity_id }).catch(() => null),
   ]);
-  const names = [...new Set([state.data?.attributes?.friendly_name, registry?.original_name].filter(Boolean))];
+  return [...new Set([state.data?.attributes?.friendly_name, registry?.original_name].filter(Boolean))];
+}
+
+async function icloudCalendarEvent(client, { op, entity_id, uid, recurrence_id, event }) {
+  const [names, config] = await Promise.all([
+    calendarNamesFor(entity_id),
+    haRequest('GET', '/api/config'),
+  ]);
   if (!names.length) throw new icloud.ICloudError(`Unknown calendar ${entity_id}`, 'not_icloud_calendar');
   const defaultTz = config.data?.time_zone || 'UTC';
   let lastErr;
@@ -350,6 +360,11 @@ function handleCalendarEventAction(req, res) {
         }
         result = { via: 'icloud' };
       }
+      // Refetch before answering, so the screen's reload right after sees the change.
+      await Promise.race([
+        calendarCache.refresh(entity_id).catch(() => {}),
+        new Promise((resolve) => setTimeout(resolve, 15000)),
+      ]);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, result }));
     } catch (err) {
@@ -770,6 +785,85 @@ function handleVoiceAction(req, res) {
   });
 }
 
+/* ---------------------------------------------------------------------------
+ * Calendar event cache (see calendar-cache.cjs)
+ * ------------------------------------------------------------------------- */
+
+let haTimeZone = 'UTC';
+async function loadHaTimeZone() {
+  try {
+    const config = await haRequest('GET', '/api/config');
+    if (config.status === 200 && config.data?.time_zone) haTimeZone = config.data.time_zone;
+  } catch { /* keep the previous value */ }
+}
+
+function haRequestWithTimeout(method, apiPath, timeoutMs) {
+  return Promise.race([
+    haRequest(method, apiPath),
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`timed out after ${timeoutMs} ms`)), timeoutMs)),
+  ]);
+}
+
+/** entity_id -> iCloud names, re-read hourly (renames are rare). */
+const calendarNameCache = new Map();
+async function cachedCalendarNames(entity_id) {
+  const hit = calendarNameCache.get(entity_id);
+  if (hit && Date.now() - hit.at < 60 * 60 * 1000) return hit.names;
+  const names = await calendarNamesFor(entity_id);
+  calendarNameCache.set(entity_id, { at: Date.now(), names });
+  return names;
+}
+
+const calendarCache = createCalendarCache({
+  async fetchEvents(entityId, start, end) {
+    const qs = new URLSearchParams({ start, end });
+    const r = await haRequestWithTimeout('GET', `/api/calendars/${encodeURIComponent(entityId)}?${qs}`, 120000);
+    if (r.status !== 200 || !Array.isArray(r.data)) throw new Error(`HA answered ${r.status}`);
+    return r.data;
+  },
+  async getChangeTags(entityIds) {
+    const client = getICloudClient();
+    if (!client) return null;
+    const tagsByName = await client.listChangeTags();
+    const out = new Map();
+    for (const entityId of entityIds) {
+      const names = await cachedCalendarNames(entityId).catch(() => []);
+      const tag = names.map((n) => tagsByName.get(n.trim().toLowerCase())).find(Boolean);
+      if (tag) out.set(entityId, tag);
+    }
+    return out;
+  },
+  getTimeZone: () => haTimeZone,
+  persistPath: SUPERVISOR_TOKEN ? path.join(DATA_DIR, 'calendar-cache.json') : null,
+});
+
+/** GET /api/calendars/<entity>?start&end from the cache; null = not cached. */
+function serveCachedCalendar(req, res) {
+  if (req.method !== 'GET') return false;
+  const m = /^\/api\/calendars\/([^/?]+)\?(.*)$/.exec(req.url);
+  if (!m) return false;
+  const params = new URLSearchParams(m[2]);
+  const hit = calendarCache.get(decodeURIComponent(m[1]), params.get('start'), params.get('end'));
+  if (!hit) return false;
+  res.writeHead(200, {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store',
+    'X-Beacon-Cache': `hit; age=${Math.round((Date.now() - hit.fetchedAt) / 1000)}`,
+  });
+  res.end(JSON.stringify(hit.events));
+  return true;
+}
+
+/**
+ * GET  /beacon-action/calendar-cache  → what's cached and how fresh
+ * POST /beacon-action/calendar-cache  → refetch every cached calendar now
+ */
+async function handleCalendarCache(req, res) {
+  if (req.method === 'POST') await calendarCache.refreshAll();
+  res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+  res.end(JSON.stringify({ time_zone: haTimeZone, calendars: calendarCache.status() }));
+}
+
 const server = http.createServer((req, res) => {
   // Voice / natural-language action API
   if (req.url === '/beacon-action/voice') {
@@ -789,15 +883,25 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (req.url === '/beacon-action/calendar-cache') {
+    handleCalendarCache(req, res).catch(() => { res.writeHead(500); res.end(); });
+    return;
+  }
+
   // Persistent data API
   if (req.url.startsWith('/beacon-data/')) {
     handleDataApi(req, res);
     return;
   }
 
-  // Proxy API requests to HA
+  // Proxy API requests to HA (calendar event lists from the cache when it has them)
   if (req.url.startsWith('/api/')) {
     if (SUPERVISOR_TOKEN) {
+      try {
+        if (serveCachedCalendar(req, res)) return;
+      } catch (err) {
+        console.error('Calendar cache lookup failed, asking HA directly:', err.message);
+      }
       proxyToHA(req, res);
     } else {
       res.writeHead(503);
@@ -850,6 +954,12 @@ server.on('upgrade', (req, socket, head) => {
 
 server.listen(PORT, () => {
   console.log(`Beacon server listening on port ${PORT}`);
+  if (SUPERVISOR_TOKEN) {
+    loadHaTimeZone()
+      .then(() => calendarCache.load())
+      .then(() => calendarCache.start());
+    setInterval(loadHaTimeZone, 60 * 60 * 1000).unref();
+  }
   console.log(`Supervisor token: ${SUPERVISOR_TOKEN ? 'available' : 'NOT available'}`);
   console.log(`Data directory: ${DATA_DIR}`);
 });
