@@ -1,3 +1,9 @@
+# [1.38.0-mc7.19](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-27)
+
+Fork changes (xxdragox/beacon):
+
+* editing and deleting events on an iCloud calendar that was renamed in Home Assistant works again. The iCloud fallback looked the calendar up by its HA display name only, so a calendar shown as "Chris" but named "Personal" in iCloud wasn't found and Beacon reported "This calendar does not support deleting events". It now also tries the calendar's original iCloud name
+
 # [1.38.0-mc7.18](https://github.com/xxdragox/beacon/compare/v1.38.0...main) (2026-10-26)
 
 Fork changes (xxdragox/beacon):

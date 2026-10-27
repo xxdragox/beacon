@@ -262,16 +262,28 @@ function getICloudClient() {
  * iCloud calendar's name; naive times are in HA's configured time zone.
  */
 async function icloudCalendarEvent(client, { op, entity_id, uid, recurrence_id, event }) {
-  const [state, config] = await Promise.all([
+  const [state, config, registry] = await Promise.all([
     haRequest('GET', `/api/states/${encodeURIComponent(entity_id)}`),
     haRequest('GET', '/api/config'),
+    // A calendar renamed in HA keeps its iCloud name as the registry's original_name.
+    haWsCommand({ type: 'config/entity_registry/get', entity_id }).catch(() => null),
   ]);
-  const calendarName = state.data?.attributes?.friendly_name;
-  if (!calendarName) throw new icloud.ICloudError(`Unknown calendar ${entity_id}`, 'not_icloud_calendar');
+  const names = [...new Set([state.data?.attributes?.friendly_name, registry?.original_name].filter(Boolean))];
+  if (!names.length) throw new icloud.ICloudError(`Unknown calendar ${entity_id}`, 'not_icloud_calendar');
   const defaultTz = config.data?.time_zone || 'UTC';
-  const args = { calendarName, uid, recurrenceId: recurrence_id || undefined, defaultTz };
-  if (op === 'update') await client.updateEvent({ ...args, payload: event });
-  else await client.deleteEvent(args);
+  let lastErr;
+  for (const calendarName of names) {
+    const args = { calendarName, uid, recurrenceId: recurrence_id || undefined, defaultTz };
+    try {
+      if (op === 'update') await client.updateEvent({ ...args, payload: event });
+      else await client.deleteEvent(args);
+      return;
+    } catch (err) {
+      if (err.code !== 'not_icloud_calendar') throw err;
+      lastErr = err;
+    }
+  }
+  throw lastErr;
 }
 
 /**
