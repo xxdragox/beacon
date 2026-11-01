@@ -86,11 +86,20 @@
 
 .screensaver-countdown-value,
 .screensaver-countdown-sep {
+  white-space: nowrap; /* the digit slots below must never wrap */
   font-size: min(120px, 8.5vw);
   font-weight: 300;
   line-height: 1;
   letter-spacing: -2px;
   font-variant-numeric: tabular-nums;
+}
+
+/* Fraunces (from Google Fonts) has no tabular figures, so give each digit a slot as
+   wide as "0", its widest digit (minus the -2px letter-spacing it would get anyway). */
+.screensaver-countdown-digit {
+  display: inline-block;
+  width: calc(1ch - 2px);
+  text-align: center;
 }
 
 .screensaver-countdown-sep {

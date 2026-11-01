@@ -1,3 +1,9 @@
+# [1.40.0-mc7.26](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-01)
+
+Fork changes (xxdragox/beacon):
+
+* Christmas countdown: the numbers and the lights around them no longer resize every second. The display font has no fixed-width digits, so each digit now gets a fixed slot as wide as "0", its widest digit. Days are always two digits ("09"), so the frame keeps one size all the way to Christmas.
+
 # [1.40.0-mc7.25](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-01)
 
 Fork changes (xxdragox/beacon):

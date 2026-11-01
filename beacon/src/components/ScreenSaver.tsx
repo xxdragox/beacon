@@ -125,7 +125,13 @@ export function ScreenSaver({
                   <div key={label} className="screensaver-countdown-group">
                     {i > 0 && <span className="screensaver-countdown-sep">:</span>}
                     <div className="screensaver-countdown-unit">
-                      <div className="screensaver-countdown-value">{i === 0 ? value : pad(value)}</div>
+                      <div className="screensaver-countdown-value">
+                        {/* One fixed-width slot per digit: the font ignores tabular-nums, so
+                            otherwise the row (and the lights around it) resizes every second. */}
+                        {pad(value).split('').map((d, j) => (
+                          <span key={j} className="screensaver-countdown-digit">{d}</span>
+                        ))}
+                      </div>
                       <div className="screensaver-countdown-label">{t(label)}</div>
                     </div>
                   </div>
