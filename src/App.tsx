@@ -856,6 +856,7 @@ export function App() {
         enabled={settings.screenSaverEnabled}
         dimTimeoutMin={settings.dimTimeout}
         screenSaverTimeoutMin={settings.screenSaverTimeout}
+        christmasCountdownYear={settings.christmasCountdownYear}
       />
 
       {/* Demo indicator — only show outside of add-on ingress */}

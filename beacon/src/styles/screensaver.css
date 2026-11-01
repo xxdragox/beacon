@@ -58,6 +58,64 @@
   margin-top: 12px;
 }
 
+/* Christmas countdown: DD : HH : MM : SS with a label under each number.
+   Sized in vw so the whole row stays under ~55vw at any screen width;
+   ScreenSaver.tsx keeps its centre between 32% and 68% across. */
+.screensaver-countdown {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-family: var(--font-display, 'Fraunces', serif);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.screensaver-countdown-group {
+  display: flex;
+  align-items: flex-start;
+}
+
+.screensaver-countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.screensaver-countdown-value,
+.screensaver-countdown-sep {
+  font-size: min(120px, 8.5vw);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.screensaver-countdown-sep {
+  padding: 0 0.12em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.screensaver-countdown-label {
+  font-size: min(16px, 1.5vw);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 10px;
+}
+
+.screensaver-countdown + .screensaver-date {
+  margin-top: 22px;
+}
+
+.screensaver-greeting {
+  font-family: var(--font-display, 'Fraunces', serif);
+  font-size: min(96px, 8vw);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
 @keyframes screensaver-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }

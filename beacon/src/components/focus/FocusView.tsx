@@ -153,6 +153,7 @@ export function FocusView({ memberId, settings, onExit }: FocusViewProps) {
         enabled={settings.screenSaverEnabled}
         dimTimeoutMin={settings.dimTimeout}
         screenSaverTimeoutMin={settings.screenSaverTimeout}
+        christmasCountdownYear={settings.christmasCountdownYear}
       />
     </div>
   );

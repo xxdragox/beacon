@@ -29,6 +29,7 @@ import { buildFocusUrl } from '../focus';
 import { useRoutines } from '../hooks/useRoutines';
 import { resolveCalendarColor, CALENDAR_COLOR_PRESETS } from '../types';
 import { useTranslation, type TranslationKey } from '../i18n';
+import { christmasPhase, nextChristmasYear } from '../utils/christmas-countdown';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -1557,6 +1558,24 @@ export function SettingsView({
                 unit=" min"
                 onChange={(v) => onUpdateSettings({ screenSaverTimeout: v })}
               />
+            </div>
+            <div className="settings-row">
+              <div>
+                <div className="settings-row-label">{t('settings.display.screenSaverStyleLabel')}</div>
+                <div className="settings-row-sublabel">{t('settings.display.screenSaverStyleSublabel')}</div>
+              </div>
+              <select
+                className="settings-select"
+                value={christmasPhase(new Date(), settings.christmasCountdownYear).kind === 'off' ? 'clock' : 'christmas'}
+                onChange={(e) =>
+                  onUpdateSettings({
+                    christmasCountdownYear: e.target.value === 'christmas' ? nextChristmasYear(new Date()) : 0,
+                  })
+                }
+              >
+                <option value="clock">{t('settings.display.screenSaverStyleClock')}</option>
+                <option value="christmas">{t('settings.display.screenSaverStyleChristmas')}</option>
+              </select>
             </div>
           </>
         )}

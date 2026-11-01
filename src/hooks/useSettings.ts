@@ -52,6 +52,7 @@ export interface BeaconSettings {
   screenSaverEnabled: boolean;
   dimTimeout: number;       // minutes
   screenSaverTimeout: number; // minutes
+  christmasCountdownYear: number; // screen saver counts down to this Christmas; 0 = clock
   alwaysOnDisplay: boolean;
   showSeconds: boolean;
   kioskMode: boolean;
@@ -112,6 +113,7 @@ function buildDefaults(): BeaconSettings {
     screenSaverEnabled: true,
     dimTimeout: 5,
     screenSaverTimeout: config.screen_saver_timeout,
+    christmasCountdownYear: 0,
     alwaysOnDisplay: false,
     showSeconds: false,
     kioskMode: false,

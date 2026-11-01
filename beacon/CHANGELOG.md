@@ -1,3 +1,9 @@
+# [1.40.0-mc7.23](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-01)
+
+Fork changes (xxdragox/beacon):
+
+* Christmas countdown screen saver. Settings → Display → Screen Saver Style → "Christmas countdown" shows a large DAYS : HOURS : MIN : SEC countdown to midnight on 25 December, with the current time underneath. On Christmas Day it shows "Merry Christmas! 🎄" with the time and date, and from 26 December it goes back to the normal clock until the countdown is turned on again. It still moves every 30 seconds to avoid burn-in, over a smaller area so the wider text stays on screen. The setting is shared (`christmasCountdownYear`), and new strings are in all 9 languages
+
 # [1.40.0-mc7.22](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-10-27)
 
 Merged upstream Beacon 1.39.0 to 1.40.0 into the fork:
