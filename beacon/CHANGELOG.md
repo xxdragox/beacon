@@ -1,3 +1,9 @@
+# [1.40.0-mc7.24](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-01)
+
+Fork changes (xxdragox/beacon):
+
+* the Christmas countdown screen saver is Christmas green (`#2fa35a`): the numbers, and the colons and labels a little softer. "Merry Christmas!" on Christmas Day is green too. The time and date line stays grey
+
 # [1.40.0-mc7.23](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-01)
 
 Fork changes (xxdragox/beacon):
