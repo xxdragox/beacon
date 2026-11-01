@@ -24,11 +24,13 @@
 
 /* Force dark background in screensaver regardless of theme */
 [data-theme="light"] .screensaver-overlay {
-  background: #0a0a0a;
+  --ss-bg: #0a0a0a;
+  background: var(--ss-bg);
 }
 
 [data-theme="dark"] .screensaver-overlay {
-  background: var(--bg-primary, #0a0a0a);
+  --ss-bg: var(--bg-primary, #0a0a0a);
+  background: var(--ss-bg);
 }
 
 /* Clock element — absolutely positioned, moves around */
@@ -107,13 +109,150 @@
   margin-top: 10px;
 }
 
-.screensaver-countdown + .screensaver-date {
+/* Under the lights: the caption, a blank line, then the current time (bigger, so it
+   reads as the clock rather than part of the countdown). */
+.screensaver-xmas-caption {
+  font-family: var(--font-display, 'Fraunces', serif);
+  font-size: min(32px, 2.6vw);
+  font-weight: 400;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.5);
   margin-top: 22px;
+}
+
+.screensaver-xmas-time {
+  font-family: var(--font-display, 'Fraunces', serif);
+  font-size: min(40px, 3.2vw);
+  font-weight: 400;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 1.2em; /* the blank line */
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Snow: twinkling flakes anywhere on screen, behind the countdown ---- */
+.ss-snow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ss-flake {
+  position: absolute;
+  color: #fff;
+  opacity: 0;
+  will-change: opacity;
+  animation-name: ss-flake-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Fade in, shimmer, fade out; the flake moves while it is at 0. */
+@keyframes ss-flake-twinkle {
+  0%   { opacity: 0; }
+  30%  { opacity: var(--flake-peak, 0.5); }
+  45%  { opacity: calc(var(--flake-peak, 0.5) * 0.55); }
+  60%  { opacity: var(--flake-peak, 0.5); }
+  90%, 100% { opacity: 0; }
+}
+
+/* The clock sits above the snow. */
+.screensaver-clock {
+  z-index: 1;
+}
+
+/* ---- String of lights around the countdown ---- */
+.ss-lights {
+  position: relative;
+  display: inline-block;
+  padding: 44px 46px;
+}
+
+/* Inside the lights is plain background, so snow never drifts behind the numbers. */
+.ss-lights::before {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  border-radius: 14px;
+  background: var(--ss-bg, #0a0a0a);
+}
+
+.ss-lights-content {
+  position: relative;
+}
+
+.ss-lights-wire {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ss-lights-wire path {
+  fill: none;
+  stroke: #3b5a40;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.ss-bulb {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Socket at the wire, bulb hanging below it (rotated outward by the component). */
+.ss-bulb-cap {
+  position: absolute;
+  left: -3px;
+  top: -1px;
+  width: 6px;
+  height: 5px;
+  border-radius: 1px;
+  background: #2b3a2e;
+}
+
+.ss-bulb-lit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: opacity;
+  animation-name: ss-bulb-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.ss-bulb-glow {
+  position: absolute;
+  left: -16px;
+  top: -6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--bulb-color) 55%, transparent) 0%, transparent 70%);
+}
+
+.ss-bulb-glass {
+  position: absolute;
+  left: -5px;
+  top: 3px;
+  width: 10px;
+  height: 15px;
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  background: radial-gradient(circle at 40% 35%, #fff 0%, var(--bulb-color) 45%, color-mix(in srgb, var(--bulb-color) 70%, #000) 100%);
+}
+
+@keyframes ss-bulb-twinkle {
+  from { opacity: 0.45; }
+  to   { opacity: 1; }
 }
 
 .screensaver-greeting {
   font-family: var(--font-display, 'Fraunces', serif);
-  font-size: min(96px, 8vw);
+  font-size: min(80px, 6.4vw);
   font-weight: 300;
   color: #2fa35a;
   line-height: 1.1;

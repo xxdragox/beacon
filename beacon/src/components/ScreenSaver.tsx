@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { format } from 'date-fns';
 import { useTranslation } from '../i18n';
 import { christmasPhase } from '../utils/christmas-countdown';
+import { ChristmasLights, Snowfall } from './ChristmasDecor';
 
 const POSITION_INTERVAL = 30_000; // move clock every 30s
 
@@ -79,11 +80,12 @@ export function ScreenSaver({
     if (phase !== 'screensaver') return;
 
     const move = () => {
-      // The countdown is wider (up to ~55vw), so it stays nearer the middle.
+      // The countdown with its lights and two lines below is up to ~63vw wide and ~400px
+      // tall, so it stays nearer the middle.
       const wide = christmasPhase(new Date(), christmasCountdownYear).kind !== 'off';
       setPosition(wide ? {
-        x: 32 + Math.random() * 36, // 32%–68%
-        y: 28 + Math.random() * 44, // 28%–72%
+        x: 33 + Math.random() * 34, // 33%–67%
+        y: 33 + Math.random() * 34, // 33%–67%
       } : {
         x: 15 + Math.random() * 70, // 15%–85%
         y: 15 + Math.random() * 70,
@@ -105,36 +107,41 @@ export function ScreenSaver({
 
   return (
     <div className="screensaver-overlay" onClick={wake}>
+      {xmas.kind !== 'off' && <Snowfall />}
       <div
         className="screensaver-clock"
         style={{ left: `${position.x}%`, top: `${position.y}%` }}
       >
         {xmas.kind === 'countdown' ? (
           <>
-            <div className="screensaver-countdown" role="timer">
-              {([
-                [xmas.days, 'screenSaver.countdown.days'],
-                [xmas.hours, 'screenSaver.countdown.hours'],
-                [xmas.minutes, 'screenSaver.countdown.minutes'],
-                [xmas.seconds, 'screenSaver.countdown.seconds'],
-              ] as const).map(([value, label], i) => (
-                <div key={label} className="screensaver-countdown-group">
-                  {i > 0 && <span className="screensaver-countdown-sep">:</span>}
-                  <div className="screensaver-countdown-unit">
-                    <div className="screensaver-countdown-value">{i === 0 ? value : pad(value)}</div>
-                    <div className="screensaver-countdown-label">{t(label)}</div>
+            <ChristmasLights>
+              <div className="screensaver-countdown" role="timer">
+                {([
+                  [xmas.days, 'screenSaver.countdown.days'],
+                  [xmas.hours, 'screenSaver.countdown.hours'],
+                  [xmas.minutes, 'screenSaver.countdown.minutes'],
+                  [xmas.seconds, 'screenSaver.countdown.seconds'],
+                ] as const).map(([value, label], i) => (
+                  <div key={label} className="screensaver-countdown-group">
+                    {i > 0 && <span className="screensaver-countdown-sep">:</span>}
+                    <div className="screensaver-countdown-unit">
+                      <div className="screensaver-countdown-value">{i === 0 ? value : pad(value)}</div>
+                      <div className="screensaver-countdown-label">{t(label)}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <div className="screensaver-date">
-              {t('screenSaver.countdown.untilChristmas')} · {format(now, 'h:mm a')}
-            </div>
+                ))}
+              </div>
+            </ChristmasLights>
+            <div className="screensaver-xmas-caption">{t('screenSaver.countdown.untilChristmas')}</div>
+            <div className="screensaver-xmas-time">{format(now, 'h:mm a')}</div>
           </>
         ) : xmas.kind === 'christmas' ? (
           <>
-            <div className="screensaver-greeting">{t('screenSaver.countdown.merryChristmas')} 🎄</div>
-            <div className="screensaver-date">{format(now, 'h:mm a · EEEE, MMMM d')}</div>
+            <ChristmasLights>
+              <div className="screensaver-greeting">{t('screenSaver.countdown.merryChristmas')} 🎄</div>
+            </ChristmasLights>
+            <div className="screensaver-xmas-caption">{format(now, 'EEEE, MMMM d')}</div>
+            <div className="screensaver-xmas-time">{format(now, 'h:mm a')}</div>
           </>
         ) : (
           <>

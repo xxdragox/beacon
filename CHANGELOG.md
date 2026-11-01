@@ -1,3 +1,13 @@
+# [1.40.0-mc7.25](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-01)
+
+Fork changes (xxdragox/beacon):
+
+* Christmas countdown screen saver decorations:
+  * twinkling snowflakes of different sizes across the screen. Each one fades in, shimmers and fades out, then reappears somewhere else at a new size, which also helps against burn-in
+  * a string of multicoloured Christmas lights around the countdown (and around "Merry Christmas!" on the day), each bulb twinkling at its own pace. Snow doesn't drift inside the lights, so the numbers stay clear
+  * "until Christmas" is bigger, and the current time is on its own line below it after a blank line, a little bigger again, so it doesn't read as part of the countdown. On Christmas Day the date takes the place of "until Christmas"
+  * everything that moves animates only opacity on its own layer, which is easy on a wall tablet's GPU; the block's movement range is narrower so the lights always stay on screen
+
 # [1.40.0-mc7.24](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-01)
 
 Fork changes (xxdragox/beacon):
