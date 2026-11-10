@@ -1,3 +1,15 @@
+# [1.40.0-mc7.27](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-10)
+
+Fork changes (xxdragox/beacon):
+
+* Family birthdays: set a birthday (month and day) on each family member in Settings → Family, and Beacon celebrates it every year:
+  * month view: the day gets a soft wash in the person's color, swinging party flags along the top and a small cake with three flickering candles
+  * week view: the same on that day's column header
+  * on the day, a "Happy Birthday, Ava!" banner with flags, hanging ribbons, falling confetti and a big cake sits above the calendar and the dashboard; × hides it for the rest of the day
+  * on the day, the screen saver shows a large cake and the greeting under flags, ribbons and confetti instead of the clock (it takes over from the Christmas countdown for that day)
+  * shared birthdays list every name ("Ava and Ben"); 29 February birthdays are celebrated on 28 February in non-leap years
+  * only opacity and transform animate, and everything stands still when the device asks for reduced motion
+
 # [1.40.0-mc7.26](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-01)
 
 Fork changes (xxdragox/beacon):

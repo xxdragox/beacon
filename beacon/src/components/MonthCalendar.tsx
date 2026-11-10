@@ -14,6 +14,9 @@ import {
 } from 'date-fns';
 import { CalendarEvent, getFullColor, getPastelColor } from '../types';
 import { useTranslation } from '../i18n';
+import type { FamilyMember } from '../types/family';
+import { birthdaysInRange } from '../utils/birthdays';
+import { BirthdayCake, Bunting } from './BirthdayDecor';
 
 interface MonthCalendarProps {
   events: CalendarEvent[];
@@ -27,6 +30,8 @@ interface MonthCalendarProps {
   timeFormat: '12h' | '24h';
   /** Extra controls on the toolbar's right side (view toggle, calendar filter). */
   toolbarExtra?: React.ReactNode;
+  /** Family members, for birthday cakes on their days. */
+  members?: FamilyMember[];
 }
 
 /** Event chips shown per day before "+N more". */
@@ -44,7 +49,7 @@ function eventDays(event: CalendarEvent): { first: Date; last: Date } {
 
 /** A month grid of events; tapping a day opens its week. */
 export function MonthCalendar({
-  events, hiddenCalendars, onEventClick, onOpenWeek, onVisibleRangeChange, weekStartsOn, timeFormat, toolbarExtra,
+  events, hiddenCalendars, onEventClick, onOpenWeek, onVisibleRangeChange, weekStartsOn, timeFormat, toolbarExtra, members = [],
 }: MonthCalendarProps) {
   const { t, dateLocale } = useTranslation();
   const today = startOfDay(new Date());
@@ -80,6 +85,12 @@ export function MonthCalendar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [events, hiddenCalendars, gridStart.toISOString(), gridEnd.toISOString()]);
 
+  const birthdays = useMemo(
+    () => birthdaysInRange(gridStart, gridEnd, members),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [members, gridStart.toISOString(), gridEnd.toISOString()],
+  );
+
   const weekdayNames = days.slice(0, 7).map((d) => format(d, 'EEE', { locale: dateLocale }));
   const isCurrentMonth = isSameMonth(month, today);
   const timeLabel = (e: CalendarEvent) => format(parseISO(e.start), timeFormat === '24h' ? 'HH:mm' : 'h:mm', { locale: dateLocale });
@@ -113,10 +124,12 @@ export function MonthCalendar({
           const key = format(day, 'yyyy-MM-dd');
           const list = byDay.get(key) ?? [];
           const shown = list.slice(0, MAX_EVENTS);
+          const birthdayMembers = birthdays.get(key);
           const classes = [
             'month-grid-cell',
             isSameMonth(day, month) ? '' : 'month-grid-cell--outside',
             isSameDay(day, today) ? 'month-grid-cell--today' : '',
+            birthdayMembers ? 'month-grid-cell--birthday' : '',
           ].join(' ');
           return (
             <div
@@ -126,7 +139,22 @@ export function MonthCalendar({
               tabIndex={0}
               onClick={() => onOpenWeek(day)}
               onKeyDown={(e) => { if (e.key === 'Enter') onOpenWeek(day); }}
+              style={birthdayMembers ? { '--bday-color': birthdayMembers[0].color } as React.CSSProperties : undefined}
             >
+              {birthdayMembers && (
+                <>
+                  <Bunting flags={6} />
+                  <span className="month-grid-birthday">
+                    {birthdayMembers.map((m) => (
+                      <BirthdayCake
+                        key={m.id}
+                        color={m.color}
+                        title={t('birthday.isBirthday', { name: m.name })}
+                      />
+                    ))}
+                  </span>
+                </>
+              )}
               <span className="month-grid-num">{format(day, 'd')}</span>
               {shown.map((event) => (
                 <button

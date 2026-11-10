@@ -18,6 +18,9 @@ import { EventDetailsPopover } from './EventDetailsPopover';
 import { useWeatherForecast } from '../hooks/useWeatherForecast';
 import { weatherIcon } from '../types/weather-icons';
 import { useTranslation } from '../i18n';
+import type { FamilyMember } from '../types/family';
+import { birthdaysOn } from '../utils/birthdays';
+import { BirthdayCake, Bunting } from './BirthdayDecor';
 
 interface WeekCalendarProps {
   events: CalendarEvent[];
@@ -31,6 +34,8 @@ interface WeekCalendarProps {
   toolbarExtra?: React.ReactNode;
   /** Week to open on (e.g. a day picked in the month view); defaults to this week. */
   initialWeekStart?: Date | null;
+  /** Family members, for birthday cakes on their days. */
+  members?: FamilyMember[];
 }
 
 const START_HOUR = 7;
@@ -74,7 +79,7 @@ interface MultiDaySpan {
   lane: number;
 }
 
-export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClick, onEventReschedule, onVisibleWeekChange, weekStartsOn, toolbarExtra, initialWeekStart }: WeekCalendarProps) {
+export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClick, onEventReschedule, onVisibleWeekChange, weekStartsOn, toolbarExtra, initialWeekStart, members = [] }: WeekCalendarProps) {
   const today = new Date();
   const todayWeekStart = startOfWeek(today, { weekStartsOn });
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -520,11 +525,28 @@ export function WeekCalendar({ events, hiddenCalendars, onEventClick, onSlotClic
           const isToday = isSameDay(day, today);
           const dayKey = format(day, 'yyyy-MM-dd');
           const wx = forecastByDate.get(dayKey);
+          const birthdayMembers = birthdaysOn(day, members);
+          const hasBirthday = birthdayMembers.length > 0;
           return (
             <div
               key={dayKey}
-              className={`week-header-day ${isToday ? 'week-header-day--today' : ''}`}
+              className={`week-header-day ${isToday ? 'week-header-day--today' : ''} ${hasBirthday ? 'week-header-day--birthday' : ''}`}
+              style={hasBirthday ? { '--bday-color': birthdayMembers[0].color } as React.CSSProperties : undefined}
             >
+              {hasBirthday && (
+                <>
+                  <Bunting flags={8} />
+                  <span className="week-header-birthday">
+                    {birthdayMembers.map((m) => (
+                      <BirthdayCake
+                        key={m.id}
+                        color={m.color}
+                        title={t('birthday.isBirthday', { name: m.name })}
+                      />
+                    ))}
+                  </span>
+                </>
+              )}
               <span className="week-header-day-name">{format(day, 'EEE', { locale: dateLocale })}</span>
               <span className="week-header-day-number">{format(day, 'd')}</span>
               {wx && (

@@ -1,8 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, type CSSProperties } from 'react';
 import { format } from 'date-fns';
 import { useTranslation } from '../i18n';
 import { christmasPhase } from '../utils/christmas-countdown';
 import { ChristmasLights, Snowfall } from './ChristmasDecor';
+import { BirthdayCake, Streamers, useNameList } from './BirthdayDecor';
+import { birthdaysOn } from '../utils/birthdays';
+import type { FamilyMember } from '../types/family';
 
 const POSITION_INTERVAL = 30_000; // move clock every 30s
 
@@ -14,7 +17,11 @@ interface ScreenSaverProps {
   screenSaverTimeoutMin?: number;
   /** Christmas this countdown runs to; 0 shows the normal clock. */
   christmasCountdownYear?: number;
+  /** Family members; on someone's birthday the screen saver celebrates it (over Christmas). */
+  members?: FamilyMember[];
 }
+
+const NO_MEMBERS: FamilyMember[] = [];
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -23,8 +30,10 @@ export function ScreenSaver({
   dimTimeoutMin = 5,
   screenSaverTimeoutMin = 10,
   christmasCountdownYear = 0,
+  members = NO_MEMBERS,
 }: ScreenSaverProps) {
   const { t } = useTranslation();
+  const nameList = useNameList();
   const [phase, setPhase] = useState<Phase>('awake');
   const [now, setNow] = useState(new Date());
   const [position, setPosition] = useState({ x: 50, y: 50 });
@@ -81,8 +90,10 @@ export function ScreenSaver({
 
     const move = () => {
       // The countdown with its lights and two lines below is up to ~63vw wide and ~400px
-      // tall, so it stays nearer the middle.
-      const wide = christmasPhase(new Date(), christmasCountdownYear).kind !== 'off';
+      // tall, and the birthday cake + greeting is similar, so they stay nearer the middle.
+      const today = new Date();
+      const wide = birthdaysOn(today, members).length > 0
+        || christmasPhase(today, christmasCountdownYear).kind !== 'off';
       setPosition(wide ? {
         x: 33 + Math.random() * 34, // 33%–67%
         y: 33 + Math.random() * 34, // 33%–67%
@@ -95,7 +106,7 @@ export function ScreenSaver({
     move(); // initial position
     const interval = setInterval(move, POSITION_INTERVAL);
     return () => clearInterval(interval);
-  }, [phase, christmasCountdownYear]);
+  }, [phase, christmasCountdownYear, members]);
 
   if (!enabled || phase === 'awake') return null;
 
@@ -103,16 +114,30 @@ export function ScreenSaver({
     return <div className="screensaver-dim" onClick={wake} />;
   }
 
-  const xmas = christmasPhase(now, christmasCountdownYear);
+  const birthdays = birthdaysOn(now, members);
+  // A birthday takes over from the Christmas countdown for the day.
+  const xmas = birthdays.length > 0 ? { kind: 'off' as const } : christmasPhase(now, christmasCountdownYear);
 
   return (
     <div className="screensaver-overlay" onClick={wake}>
       {xmas.kind !== 'off' && <Snowfall />}
+      {birthdays.length > 0 && (
+        <Streamers className="screensaver-bday-streamers" ribbons={12} length={170} flags={30} confetti={20} />
+      )}
       <div
         className="screensaver-clock"
         style={{ left: `${position.x}%`, top: `${position.y}%` }}
       >
-        {xmas.kind === 'countdown' ? (
+        {birthdays.length > 0 ? (
+          <div className="screensaver-bday" style={{ '--bday-color': birthdays[0].color } as CSSProperties}>
+            <BirthdayCake color={birthdays[0].color} />
+            <div className="screensaver-bday-greeting">
+              {t('birthday.happyBirthday', { name: nameList(birthdays) })} 🎉
+            </div>
+            <div className="screensaver-xmas-caption">{format(now, 'EEEE, MMMM d')}</div>
+            <div className="screensaver-xmas-time">{format(now, 'h:mm a')}</div>
+          </div>
+        ) : xmas.kind === 'countdown' ? (
           <>
             <ChristmasLights>
               <div className="screensaver-countdown" role="timer">

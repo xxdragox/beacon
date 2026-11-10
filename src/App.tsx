@@ -25,6 +25,8 @@ import { NowPlayingBar } from './components/NowPlayingBar';
 import { useMusic } from './hooks/useMusic';
 import { useNotifications } from './hooks/useNotifications';
 import { ScreenSaver } from './components/ScreenSaver';
+import { BirthdayBanner } from './components/BirthdayDecor';
+import { birthdaysOn } from './utils/birthdays';
 import { GroceryView } from './components/GroceryView';
 import { OmniAdd } from './components/OmniAdd';
 import { Timer } from './components/Timer';
@@ -42,6 +44,9 @@ import { getConfig, patchConfig } from './config';
 import { I18nContext, createI18n } from './i18n';
 
 const config = getConfig();
+
+/** localStorage: the day (yyyy-MM-dd) the birthday banner was dismissed. */
+const BIRTHDAY_DISMISSED_KEY = 'beacon_birthday_banner_dismissed';
 
 export function App() {
   const auth = useHaAuth();
@@ -134,6 +139,24 @@ export function App() {
     uncompleteChore,
   } = useChores();
   const todayKey = useTodayKey();
+
+  // Birthday celebration banner: shown all day, unless dismissed for that day.
+  const todaysBirthdays = useMemo(
+    () => birthdaysOn(new Date(), members),
+    // todayKey: recompute when the day rolls over.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [members, todayKey],
+  );
+  const [birthdayDismissedDay, setBirthdayDismissedDay] = useState(() => {
+    try { return localStorage.getItem(BIRTHDAY_DISMISSED_KEY) ?? ''; } catch { return ''; }
+  });
+  const dismissBirthdayBanner = useCallback(() => {
+    setBirthdayDismissedDay(todayKey);
+    try { localStorage.setItem(BIRTHDAY_DISMISSED_KEY, todayKey); } catch { /* storage unavailable */ }
+  }, [todayKey]);
+  const birthdayBanner = todaysBirthdays.length > 0 && birthdayDismissedDay !== todayKey
+    ? <BirthdayBanner members={todaysBirthdays} onDismiss={dismissBirthdayBanner} />
+    : null;
 
   const dashboardTasks = useDashboardTasks(connected, settings.groceryListIds);
 
@@ -620,6 +643,7 @@ export function App() {
       <div className="beacon-main">
         {activeView === 'dashboard' ? (
           <>
+            {birthdayBanner}
             <DashboardView
               events={visibleEvents}
               weather={weather}
@@ -733,6 +757,8 @@ export function App() {
               />
             )}
 
+            {birthdayBanner}
+
             {/* Calendar Body (fork: no task sidebar — chores live on the Chores page and dashboard) */}
             <div className="beacon-body beacon-body--two-col">
               <div className="beacon-body-calendar">
@@ -779,6 +805,7 @@ export function App() {
                       weekStartsOn={settings.weekStartsOn}
                       timeFormat={settings.timeFormat}
                       toolbarExtra={toolbarExtra}
+                      members={members}
                     />
                   ) : (
                     <WeekCalendar
@@ -792,6 +819,7 @@ export function App() {
                       weekStartsOn={settings.weekStartsOn}
                       initialWeekStart={weekViewStart}
                       toolbarExtra={toolbarExtra}
+                      members={members}
                     />
                   );
                 })()}
@@ -857,6 +885,7 @@ export function App() {
         dimTimeoutMin={settings.dimTimeout}
         screenSaverTimeoutMin={settings.screenSaverTimeout}
         christmasCountdownYear={settings.christmasCountdownYear}
+        members={members}
       />
 
       {/* Demo indicator — only show outside of add-on ingress */}

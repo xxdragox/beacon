@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { format } from 'date-fns';
 import { useTheme } from '../hooks/useTheme';
 import {
   Settings as SettingsIcon,
@@ -30,6 +31,7 @@ import { useRoutines } from '../hooks/useRoutines';
 import { resolveCalendarColor, CALENDAR_COLOR_PRESETS } from '../types';
 import { useTranslation, type TranslationKey } from '../i18n';
 import { christmasPhase, nextChristmasYear } from '../utils/christmas-countdown';
+import { formatBirthday, parseBirthday } from '../utils/birthdays';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -178,6 +180,9 @@ interface MemberForm {
   pin: string;
   calendar_entity: string;
   additional_calendar_entities: string[];
+  /** 1–12, or 0 for no birthday. */
+  birthdayMonth: number;
+  birthdayDay: number;
 }
 
 const EMPTY_FORM: MemberForm = {
@@ -188,7 +193,14 @@ const EMPTY_FORM: MemberForm = {
   pin: '',
   calendar_entity: '',
   additional_calendar_entities: [],
+  birthdayMonth: 0,
+  birthdayDay: 0,
 };
+
+/** Days in a 1-based month, allowing 29 February. */
+function daysInBirthdayMonth(month: number): number {
+  return month ? new Date(2024, month, 0).getDate() : 31;
+}
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -210,7 +222,7 @@ export function SettingsView({
   calendars,
   onEnterFocusMode,
 }: SettingsViewProps) {
-  const { t } = useTranslation();
+  const { t, dateLocale } = useTranslation();
   const { setTheme: applyTheme } = useTheme();
   const [activeSection, setActiveSection] = useState<SettingsSection>('general');
   const [editingMember, setEditingMember] = useState<string | null>(null);
@@ -283,6 +295,8 @@ export function SettingsView({
       pin: member.pin ?? '',
       calendar_entity: member.calendar_entity ?? '',
       additional_calendar_entities: member.additional_calendar_entities ?? [],
+      birthdayMonth: parseBirthday(member.birthday)?.month ?? 0,
+      birthdayDay: parseBirthday(member.birthday)?.day ?? 0,
     });
     setEditingMember(member.id);
     setMemberFormMode('edit');
@@ -299,6 +313,9 @@ export function SettingsView({
       calendar_entity: memberForm.calendar_entity || undefined,
       additional_calendar_entities: memberForm.additional_calendar_entities.length > 0
         ? memberForm.additional_calendar_entities
+        : undefined,
+      birthday: memberForm.birthdayMonth && memberForm.birthdayDay
+        ? formatBirthday(memberForm.birthdayMonth, memberForm.birthdayDay)
         : undefined,
     };
     if (memberFormMode === 'edit' && editingMember) {
@@ -1015,6 +1032,48 @@ export function SettingsView({
               inputMode="numeric"
               maxLength={6}
             />
+          </div>
+          <div className="settings-row">
+            <div>
+              <div className="settings-row-label">{t('settings.family.birthdayLabel')}</div>
+              <div className="settings-row-sublabel">{t('settings.family.birthdaySublabel')}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <select
+                className="settings-select"
+                aria-label={t('settings.family.birthdayMonth')}
+                value={memberForm.birthdayMonth}
+                onChange={(e) => {
+                  const birthdayMonth = Number(e.target.value);
+                  setMemberForm((f) => ({
+                    ...f,
+                    birthdayMonth,
+                    birthdayDay: !birthdayMonth
+                      ? 0
+                      : Math.min(f.birthdayDay || 1, daysInBirthdayMonth(birthdayMonth)),
+                  }));
+                }}
+              >
+                <option value={0}>{t('common.none')}</option>
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {format(new Date(2024, i, 1), 'LLLL', { locale: dateLocale })}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="settings-select"
+                aria-label={t('settings.family.birthdayDay')}
+                value={memberForm.birthdayDay}
+                disabled={!memberForm.birthdayMonth}
+                onChange={(e) => setMemberForm((f) => ({ ...f, birthdayDay: Number(e.target.value) }))}
+              >
+                {!memberForm.birthdayMonth && <option value={0}>–</option>}
+                {Array.from({ length: daysInBirthdayMonth(memberForm.birthdayMonth) }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="settings-row">
             <div>

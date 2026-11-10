@@ -11,6 +11,8 @@ export interface FamilyMember {
    *  too instead of falling into the "Other" bucket. `calendar_entity`
    *  remains the primary/back-compat single-calendar field. */
   additional_calendar_entities?: string[];
+  /** Birthday as "MM-DD" (no year). Shows a cake on the calendar each year. */
+  birthday?: string;
 }
 
 /** 0 = Sunday … 6 = Saturday (Date.getDay()). */

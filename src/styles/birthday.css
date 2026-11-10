@@ -1,0 +1,413 @@
+/* ==========================================================================
+   Birthday decorations (BirthdayDecor.tsx)
+   Only opacity/transform animate, on their own layers, for weak wall-tablet GPUs.
+   ========================================================================== */
+
+/* ---- Cake + candle flames ---- */
+
+.bday-cake {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.bday-cake > svg {
+  display: block;
+  overflow: visible;
+}
+
+/* A flame sits on a wick (top of the candle at y≈11 of 64). */
+.bday-flame {
+  position: absolute;
+  top: 1.5%;
+  width: 9%;
+  height: 15%;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  animation: bday-flicker 0.9s ease-in-out infinite alternate;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.bday-flame-core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+  background: radial-gradient(ellipse at 50% 75%, #fffbe0 0%, #ffd84a 40%, #ff9a2e 80%, rgba(255, 120, 40, 0) 100%);
+}
+
+.bday-flame-glow {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: 260%;
+  height: 160%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 210, 90, 0.55) 0%, rgba(255, 190, 70, 0) 70%);
+  animation: bday-glow 1.3s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+@keyframes bday-flicker {
+  0%   { transform: translateX(-50%) scale(1, 1) rotate(-3deg); }
+  35%  { transform: translateX(-50%) scale(0.92, 1.08) rotate(2deg); }
+  70%  { transform: translateX(-50%) scale(1.05, 0.94) rotate(-1deg); }
+  100% { transform: translateX(-50%) scale(0.96, 1.1) rotate(3deg); }
+}
+
+@keyframes bday-glow {
+  from { opacity: 0.55; }
+  to   { opacity: 1; }
+}
+
+/* ---- Bunting (pennant flags) ---- */
+
+.bday-bunting {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  height: 9px;
+  pointer-events: none;
+  border-top: 1px solid rgba(140, 120, 150, 0.45);
+}
+
+.bday-pennant {
+  display: block;
+  width: 7px;
+  height: 9px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: 50% 0;
+  animation: bday-swing 2.4s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes bday-swing {
+  from { transform: rotate(-9deg); }
+  to   { transform: rotate(9deg); }
+}
+
+/* ---- Streamers: bunting + hanging ribbons + confetti ---- */
+
+.bday-streamers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bday-streamers-bunting {
+  height: 16px;
+}
+
+.bday-streamers-bunting .bday-pennant {
+  width: 14px;
+  height: 16px;
+}
+
+.bday-ribbon {
+  position: absolute;
+  top: -4px;
+  line-height: 0;
+  transform-origin: 50% 0;
+  animation: bday-sway 3.6s ease-in-out infinite alternate;
+  will-change: transform;
+  opacity: 0.9;
+}
+
+@keyframes bday-sway {
+  from { transform: translateX(-50%) rotate(-6deg); }
+  to   { transform: translateX(-50%) rotate(6deg); }
+}
+
+.bday-confetti {
+  position: absolute;
+  top: -12px;
+  width: 7px;
+  height: 11px;
+  border-radius: 1px;
+  opacity: 0;
+  animation: bday-confetti-fall 8s linear infinite;
+  will-change: transform, opacity;
+}
+
+.bday-confetti--round {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Falls a fixed distance; the box clips it. */
+@keyframes bday-confetti-fall {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  8%   { opacity: 0.9; }
+  50%  { transform: translate(12px, calc(var(--confetti-fall, 100vh) / 2)) rotate(calc(var(--confetti-spin, 1) * 260deg)); }
+  85%  { opacity: 0.9; }
+  100% { transform: translate(-8px, var(--confetti-fall, 100vh)) rotate(calc(var(--confetti-spin, 1) * 540deg)); opacity: 0; }
+}
+
+/* ---- Month view: birthday cells ---- */
+
+.month-grid-cell--birthday {
+  position: relative;
+  isolation: isolate; /* keeps the wash below the content */
+}
+
+/* A soft wash of the birthday person's color behind the cell. */
+.month-grid-cell--birthday::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bday-color, #ff5c8a);
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.month-grid-birthday {
+  position: absolute;
+  top: 8px;
+  left: 4px;
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.month-grid-birthday .bday-cake {
+  width: 30px;
+  height: 30px;
+}
+
+.month-grid-cell--birthday .month-grid-num {
+  margin-top: 4px; /* clear the bunting */
+}
+
+/* ---- Week view: birthday day headers ---- */
+
+.week-header-day--birthday {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.week-header-day--birthday::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bday-color, #ff5c8a);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.week-header-birthday {
+  position: absolute;
+  top: 12px;
+  right: 6px;
+  display: flex;
+  gap: 1px;
+}
+
+.week-header-birthday .bday-cake {
+  width: 34px;
+  height: 34px;
+}
+
+/* ---- "Happy Birthday" banner (calendar + dashboard) ---- */
+
+.bday-banner {
+  position: relative;
+  flex: none;
+  margin: 12px 16px 0;
+  min-height: 104px;
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  isolation: isolate;
+  --confetti-fall: 130px;
+}
+
+.bday-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bday-color, #ff5c8a);
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.bday-banner-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 26px 52px 12px;
+  min-height: 104px;
+  box-sizing: border-box;
+}
+
+.bday-banner .bday-banner-content > .bday-cake {
+  width: 72px;
+  height: 72px;
+}
+
+.bday-banner-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.bday-banner-title {
+  font-family: var(--font-display, 'Fraunces', serif);
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.bday-banner-avatars {
+  display: flex;
+  gap: 6px;
+}
+
+.bday-banner-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: var(--bg-surface);
+  font-size: 17px;
+  line-height: 1;
+}
+
+.bday-banner-close {
+  position: absolute;
+  top: 18px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bday-banner-close:hover {
+  background: var(--bg-hover, rgba(0, 0, 0, 0.06));
+}
+
+/* The dashboard has its own padding; line the banner up with it. */
+.beacon-main > .bday-banner {
+  margin: clamp(12px, 1.25vw, 24px) clamp(12px, 1.75vw, 32px) 0;
+}
+
+@media (max-width: 768px) {
+  .bday-banner-content {
+    gap: 12px;
+    padding: 26px 44px 10px 12px;
+  }
+
+  .bday-banner .bday-banner-content > .bday-cake {
+    width: 52px;
+    height: 52px;
+  }
+
+  /* Fewer ribbons on a narrow strip. */
+  .bday-banner .bday-ribbon:nth-of-type(even) {
+    display: none;
+  }
+
+  /* Narrow month cells: a smaller cake that clears the day number. */
+  .month-grid-birthday {
+    top: 10px;
+    left: 2px;
+  }
+
+  .month-grid-birthday .bday-cake {
+    width: 20px;
+    height: 20px;
+  }
+
+  .week-header-birthday {
+    top: 10px;
+    right: 3px;
+  }
+
+  .week-header-birthday .bday-cake {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* ---- Screen saver ---- */
+
+.screensaver-bday-streamers .bday-streamers-bunting {
+  height: 26px;
+}
+
+.screensaver-bday-streamers .bday-streamers-bunting .bday-pennant {
+  width: 24px;
+  height: 26px;
+}
+
+.screensaver-bday-streamers .bday-ribbon {
+  opacity: 0.75;
+}
+
+.screensaver-bday {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.screensaver-bday .bday-cake {
+  width: min(220px, 20vw);
+  height: min(220px, 20vw);
+  margin-bottom: 18px;
+}
+
+.screensaver-bday-greeting {
+  font-family: var(--font-display, 'Fraunces', serif);
+  font-size: min(72px, 5.6vw);
+  font-weight: 300;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--bday-color, #ff8fb1);
+}
+
+/* ---- Reduced motion: keep the decorations, stop the movement ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .bday-flame,
+  .bday-flame-glow,
+  .bday-pennant,
+  .bday-ribbon {
+    animation: none;
+  }
+
+  .bday-ribbon {
+    transform: translateX(-50%);
+  }
+
+  .bday-confetti {
+    display: none;
+  }
+}
