@@ -122,7 +122,7 @@ export function ScreenSaver({
     <div className="screensaver-overlay" onClick={wake}>
       {xmas.kind !== 'off' && <Snowfall />}
       {birthdays.length > 0 && (
-        <Streamers className="screensaver-bday-streamers" ribbons={12} length={170} flags={30} confetti={20} />
+        <Streamers className="screensaver-bday-streamers" ribbons={7} length={170} flags={30} confetti={10} />
       )}
       <div
         className="screensaver-clock"

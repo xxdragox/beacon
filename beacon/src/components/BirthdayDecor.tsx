@@ -217,7 +217,7 @@ export function BirthdayBanner({ members, onDismiss }: BirthdayBannerProps) {
   const color = members[0].color;
   return (
     <div className="bday-banner" role="status" style={{ '--bday-color': color } as CSSProperties}>
-      <Streamers ribbons={10} length={34} flags={24} confetti={16} />
+      <Streamers ribbons={6} length={34} flags={24} confetti={8} />
       <div className="bday-banner-content">
         <BirthdayCake color={color} />
         <div className="bday-banner-text">

@@ -1,3 +1,9 @@
+# [1.40.0-mc7.28](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-10)
+
+Fork changes (xxdragox/beacon):
+
+* Birthday decorations are lighter on wall tablets: about half the ribbons and confetti in the "Happy Birthday" banner (6 ribbons, 8 confetti) and on the birthday screen saver (7 ribbons, 10 confetti). The flags, cake and candles are unchanged.
+
 # [1.40.0-mc7.27](https://github.com/xxdragox/beacon/compare/v1.40.0...main) (2026-11-10)
 
 Fork changes (xxdragox/beacon):
